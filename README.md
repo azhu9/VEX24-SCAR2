@@ -1,2 +1,2 @@
-# VEX24
-RIEEE Vex-U team's code for 2023-2024.
+# VEXU24
+RIEEE Vex-U's SCAR2 Code for 2023-24
