@@ -1,127 +1,174 @@
-#define ONE_STICK false
-
 #include "main.h"
-#include "pros/misc.h"
-#include "robot.h"
 
-#include "library/IntakeController.h"
-#include "library/AutonSelector.h"
+/////
+// For installation, upgrading, documentations and tutorials, check out our website!
+// https://ez-robotics.github.io/EZ-Template/
+/////
 
-#include <iostream> // for debugging
 
-//autons:
-#include "autons/AWPRight.cpp"
+// Chassis constructor
+ez::Drive chassis (
+  // Left Chassis Ports (negative port will reverse it!)
+  //   the first port is used as the sensor
+  {1, 2, 3}
 
-AutonSelector selector(1);
+  // Right Chassis Ports (negative port will reverse it!)
+  //   the first port is used as the sensor
+  ,{-4, -5, -6}
 
-using namespace pros;
+  // IMU Port
+  ,7
 
-bool initializing = false;
+  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
+  ,3.25
 
-void print_debug() {
-	lcd::initialize();
+  // Cartridge RPM
+  ,600
 
-	while(true) {
-		// lcd::set_text(2, "Static imu: " + std::to_string(static_imu.get_rotation()));
+  // External Gear Ratio (MUST BE DECIMAL) This is WHEEL GEAR / MOTOR GEAR
+  // eg. if your drive is 84:36 where the 36t is powered, your RATIO would be 84/36 which is 2.333
+  // eg. if your drive is 60:36 where the 36t is powered, your RATIO would be 60/36 which is 0.6
+  // eg. if your drive is 36:60 where the 60t is powered, your RATIO would be 36/60 which is 0.6
+  ,1.6667
+);
 
-		delay(10);
 
-		lcd::clear();
-	}
+
+/**
+ * Runs initialization code. This occurs as soon as the program is started.
+ *
+ * All other competition modes are blocked by initialize; it is recommended
+ * to keep execution time for this mode under a few seconds.
+ */
+void initialize() {
+  // Print our branding over your terminal :D
+  ez::ez_template_print();
+  
+  pros::delay(500); // Stop the user from doing anything while legacy ports configure
+
+  // Configure your chassis controls
+  chassis.opcontrol_curve_buttons_toggle(true); // Enables modifying the controller curve with buttons on the joysticks
+  chassis.opcontrol_drive_activebrake_set(0); // Sets the active brake kP. We recommend 0.1.
+  chassis.opcontrol_curve_default_set(0, 0); // Defaults for curve. If using tank, only the first parameter is used. (Comment this line out if you have an SD card!)  
+  default_constants(); // Set the drive to your own constants from autons.cpp!
+
+  // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
+  // chassis.opcontrol_curve_buttons_left_set (pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT); // If using tank, only the left side is used. 
+  // chassis.opcontrol_curve_buttons_right_set(pros::E_CONTROLLER_DIGITAL_Y,    pros::E_CONTROLLER_DIGITAL_A);
+
+  // Autonomous Selector using LLEMU
+  ez::as::auton_selector.autons_add({
+    Auton("Example Drive\n\nDrive forward and come back.", drive_example),
+    Auton("Example Turn\n\nTurn 3 times.", turn_example),
+    Auton("Drive and Turn\n\nDrive forward, turn, come back. ", drive_and_turn),
+    Auton("Drive and Turn\n\nSlow down during drive.", wait_until_change_speed),
+    Auton("Swing Example\n\nSwing in an 'S' curve", swing_example),
+    Auton("Combine all 3 movements", combining_movements),
+    Auton("Interference\n\nAfter driving forward, robot performs differently if interfered or not.", interfered_example),
+  });
+
+  // Initialize chassis and auton selector
+  chassis.initialize();
+  ez::as::initialize();
+  master.rumble(".");
 }
 
-void initialize() {	
-	IntakeMotor.set_brake_mode(E_MOTOR_BRAKE_BRAKE);
 
-	Task t(print_debug);
+
+/**
+ * Runs while the robot is in the disabled state of Field Management System or
+ * the VEX Competition Switch, following either autonomous or opcontrol. When
+ * the robot is enabled, this task will exit.
+ */
+void disabled() {
+  // . . .
 }
 
-void disabled() {}
 
+
+/**
+ * Runs after initialize(), and before autonomous when connected to the Field
+ * Management System or the VEX Competition Switch. This is intended for
+ * competition-specific initialization routines, such as an autonomous selector
+ * on the LCD.
+ *
+ * This task will exit when the robot is enabled and autonomous or opcontrol
+ * starts.
+ */
 void competition_initialize() {
-	/*
-	//add the autons to the selector
-	selector.add("Right Side AWP", "Push in preload", "score blue+hang");
-	bool updateScreen = false;
-
-	master.clear();
-
-	//Allow the user to select an auton
-	while(true) {
-		if(updateScreen) {
-			selector.display_autons(); //update screen
-			updateScreen = false;
-		}
-
-		if(master.get_digital_new_press(E_CONTROLLER_DIGITAL_UP)) {
-			selector.iterate();
-			updateScreen = true;
-		}
-
-		delay(10);
-  	}
-	*/
-
-	//calibrate imu (blocking)
-	master.clear();
-	delay(60);
-	master.set_text(0, 0, "Calibrating...");
-	delay(60);
-
-	imu.reset();
-	// static_imu.reset();
-	delay(3000);
-	imu.tare_rotation();
-	// static_imu.tare();
-
-	master.clear();
-	delay(60);
-	master.set_text(0, 0, "Armed");
+  // . . .
 }
 
+
+
+/**
+ * Runs the user autonomous code. This function will be started in its own task
+ * with the default priority and stack size whenever the robot is enabled via
+ * the Field Management System or the VEX Competition Switch in the autonomous
+ * mode. Alternatively, this function may be called in initialize or opcontrol
+ * for non-competition testing purposes.
+ *
+ * If the robot is disabled or communications is lost, the autonomous task
+ * will be stopped. Re-enabling the robot will restart the task, not re-start it
+ * from where it left off.
+ */
 void autonomous() {
-	runRightAwpAuton(); //TODO: MAKE AN AUTON SELECTOR
+  chassis.pid_targets_reset(); // Resets PID targets to 0
+  chassis.drive_imu_reset(); // Reset gyro position to 0
+  chassis.drive_sensor_reset(); // Reset drive sensors to 0
+  chassis.drive_brake_set(MOTOR_BRAKE_HOLD); // Set motors to hold.  This helps autonomous consistency
+
+  ez::as::auton_selector.selected_auton_call(); // Calls selected auton from autonomous selector
 }
 
+
+
+/**
+ * Runs the operator control code. This function will be started in its own task
+ * with the default priority and stack size whenever the robot is enabled via
+ * the Field Management System or the VEX Competition Switch in the operator
+ * control mode.
+ *
+ * If no competition control is connected, this function will run immediately
+ * following initialize().
+ *
+ * If the robot is disabled or communications is lost, the
+ * operator control task will be stopped. Re-enabling the robot will restart the
+ * task, not resume it from where it left off.
+ */
 void opcontrol() {
-	bool frontWingsDeployed = false;
-	bool backWingsDeployed = false;
-	rightMotors.set_brake_modes(E_MOTOR_BRAKE_COAST);
-	leftMotors.set_brake_modes(E_MOTOR_BRAKE_COAST);
+  // This is preference to what you like to drive on
+  chassis.drive_brake_set(MOTOR_BRAKE_COAST);
+  
+  while (true) {
+    
+    // PID Tuner
+    // After you find values that you're happy with, you'll have to set them in auton.cpp
+    if (!pros::competition::is_connected()) { 
+      // Enable / Disable PID Tuner
+      //  When enabled: 
+      //  * use A and Y to increment / decrement the constants
+      //  * use the arrow keys to navigate the constants
+      if (master.get_digital_new_press(DIGITAL_X)) 
+        chassis.pid_tuner_toggle();
+        
+      // Trigger the selected autonomous routine
+      if (master.get_digital_new_press(DIGITAL_B)) 
+        autonomous();
 
-	while(true) {
-		//driving
-		if(ONE_STICK){
-			double leftMove = master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
-			double rightMove = master.get_analog(E_CONTROLLER_ANALOG_LEFT_X);
-			driveChassis.DriveArcade(leftMove, rightMove);	
-		}
-		else{
-			double leftAmount = master.get_analog(E_CONTROLLER_ANALOG_LEFT_Y);
-			double rightAmount = master.get_analog(E_CONTROLLER_ANALOG_RIGHT_X);
-			driveChassis.DriveArcade(leftAmount, rightAmount);
-		}
-		
+      chassis.pid_tuner_iterate(); // Allow PID Tuner to iterate
+    } 
 
-		//intake
-		if(master.get_digital(E_CONTROLLER_DIGITAL_R1))
-			IntakeMotor.move(127);
-		else if(master.get_digital(E_CONTROLLER_DIGITAL_R2))
-			IntakeMotor.move(-70);
-		else
-			IntakeMotor.brake();
+    chassis.opcontrol_tank(); // Tank control
+    // chassis.opcontrol_arcade_standard(ez::SPLIT); // Standard split arcade
+    // chassis.opcontrol_arcade_standard(ez::SINGLE); // Standard single arcade
+    // chassis.opcontrol_arcade_flipped(ez::SPLIT); // Flipped split arcade
+    // chassis.opcontrol_arcade_flipped(ez::SINGLE); // Flipped single arcade
 
-		//wings
-		if(master.get_digital_new_press(E_CONTROLLER_DIGITAL_L1)) {
-			frontWingsDeployed = !frontWingsDeployed;
-			frontWings.set_value(frontWingsDeployed);
-		}
-		if(master.get_digital_new_press(E_CONTROLLER_DIGITAL_L2)) {
-			backWingsDeployed = !backWingsDeployed;
-			backWings.set_value(backWingsDeployed);
-		}
+    // . . .
+    // Put more user control code here!
+    // . . .
 
-
-		delay(10);
-	}
+    pros::delay(ez::util::DELAY_TIME); // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
+  }
 }
