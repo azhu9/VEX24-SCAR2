@@ -1,4 +1,5 @@
 #include "main.h"
+#include "robot.h"
 
 /////
 // For installation, upgrading, documentations and tutorials, check out our website!
@@ -159,8 +160,8 @@ void opcontrol() {
       chassis.pid_tuner_iterate(); // Allow PID Tuner to iterate
     } 
 
-    chassis.opcontrol_tank(); // Tank control
-    // chassis.opcontrol_arcade_standard(ez::SPLIT); // Standard split arcade
+    // chassis.opcontrol_tank(); // Tank control
+    chassis.opcontrol_arcade_standard(ez::SPLIT); // Standard split arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE); // Standard single arcade
     // chassis.opcontrol_arcade_flipped(ez::SPLIT); // Flipped split arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE); // Flipped single arcade
@@ -168,6 +169,13 @@ void opcontrol() {
     // . . .
     // Put more user control code here!
     // . . .
+
+    #if CATA_BOT //cata bot controls
+
+
+    #else //u bot controls
+
+    #endif
 
     pros::delay(ez::util::DELAY_TIME); // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }

@@ -4,7 +4,8 @@
       "name": "PROS Project",
       "includePath": [
         "${workspaceFolder}/**",
-        "c:\\Users\\azhu6\\Downloads\\EZ-Template-Example-Project-v3.0.0\\include"
+        "c:\\Users\\azhu6\\Downloads\\EZ-Template-Example-Project-v3.0.0\\include",
+        "c:\\Users\\azhu6\\OneDrive\\Documents\\GitHub\\VEX24-SCAR2\\include"
       ],
       "defines": [
         "_DEBUG",
@@ -15,10 +16,10 @@
       "cStandard": "gnu11",
       "cppStandard": "gnu++20",
       "intelliSenseMode": "gcc-arm",
-      "compileCommands": "c:\\Users\\azhu6\\Downloads\\EZ-Template-Example-Project-v3.0.0\\compile_commands.json",
+      "compileCommands": "c:\\Users\\azhu6\\OneDrive\\Documents\\GitHub\\VEX24-SCAR2\\compile_commands.json",
       "browse": {
         "path": [
-          "c:\\Users\\azhu6\\Downloads\\EZ-Template-Example-Project-v3.0.0"
+          "c:\\Users\\azhu6\\OneDrive\\Documents\\GitHub\\VEX24-SCAR2"
         ],
         "limitSymbolsToIncludedHeaders": true,
         "databaseFilename": ""
