@@ -1,24 +1,24 @@
 #include "main.h"
-#include "robot.h"
 
 /////
 // For installation, upgrading, documentations and tutorials, check out our website!
 // https://ez-robotics.github.io/EZ-Template/
 /////
 
-
+#define CATA_BOT true
 // Chassis constructor
+#if CATA_BOT //to be done
 ez::Drive chassis (
   // Left Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  {1, 2, 3}
+  {-11, 12, -13, 14}
 
   // Right Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  ,{-4, -5, -6}
+  ,{15, -16, 17, -18}
 
   // IMU Port
-  ,7
+  ,1
 
   // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
   ,3.25
@@ -32,7 +32,32 @@ ez::Drive chassis (
   // eg. if your drive is 36:60 where the 60t is powered, your RATIO would be 36/60 which is 0.6
   ,1.6667
 );
+#else
+ez::Drive chassis (
+  // Left Chassis Ports (negative port will reverse it!)
+  //   the first port is used as the sensor
+  {-11, 12, -13, 14}
 
+  // Right Chassis Ports (negative port will reverse it!)
+  //   the first port is used as the sensor
+  ,{15, -16, 17, -18}
+
+  // IMU Port
+  ,1
+
+  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
+  ,3.25
+
+  // Cartridge RPM
+  ,600
+
+  // External Gear Ratio (MUST BE DECIMAL) This is WHEEL GEAR / MOTOR GEAR
+  // eg. if your drive is 84:36 where the 36t is powered, your RATIO would be 84/36 which is 2.333
+  // eg. if your drive is 60:36 where the 36t is powered, your RATIO would be 60/36 which is 0.6
+  // eg. if your drive is 36:60 where the 60t is powered, your RATIO would be 36/60 which is 0.6
+  ,1.6667
+);
+#endif
 
 
 /**
@@ -140,6 +165,25 @@ void autonomous() {
 void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
+
+#if CATA_BOT
+  //update this
+  pros::Motor intake1(1);
+  pros::Motor intake2(2, true); 
+  pros::Motor_Group intake = pros::Motor_Group({intake1, intake2});
+
+  pros::Motor cata1(3);
+  pros::Motor cata2(4);
+  pros::ADIDigitalOut wings('A');
+
+  bool wingsDeployed = false;
+#else
+  pros::Motor climb_motor1(19);
+  pros::Motor climb_motor2(20, true);
+  pros::Motor_Group climb = pros::Motor_Group({climb_motor1, climb_motor2});
+
+#endif
+
   
   while (true) {
     
@@ -166,14 +210,35 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SPLIT); // Flipped split arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE); // Flipped single arcade
 
-    // . . .
-    // Put more user control code here!
-    // . . .
-
     #if CATA_BOT //cata bot controls
+    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)){
+      wingsDeployed = !wingsDeployed;
+			wings.set_value(wingsDeployed);
+    }
 
+    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
+      intake = 80;
+    }
+    else if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
+      intake = -80;
+    }
+    else{
+      intake = 0;
+    }
+
+    //cata code goes here 
 
     #else //u bot controls
+
+    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+      climb = 40;
+    }
+    else if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+      climb = -40;
+    }
+    else{
+      climb = 0;
+    }
 
     #endif
 
