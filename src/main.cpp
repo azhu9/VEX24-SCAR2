@@ -168,19 +168,26 @@ void opcontrol() {
 
 #if CATA_BOT
   //update this
-  pros::Motor intake1(1);
-  pros::Motor intake2(2, true); 
-  pros::Motor_Group intake = pros::Motor_Group({intake1, intake2});
+  pros::Motor intake_motor1(1);
+  pros::Motor intake_motor2(2, true); 
+  pros::Motor_Group intake = pros::Motor_Group({intake_motor1, intake_motor2});
 
-  pros::Motor cata1(3);
-  pros::Motor cata2(4);
-  pros::ADIDigitalOut wings('A');
+  pros::Motor cata_motor1(3);
+  pros::Motor cata_motor2(4, true);
+  pros::Motor_Group cata = pros::Motor_Group({cata_motor1, cata_motor2});
+  pros::ADIDigitalOut frontWings('A');
+  pros::ADIDigitalOut backWings('B');
 
-  bool wingsDeployed = false;
+  bool frontWingsDeployed = false;
+  bool backWingsDeployed = false;
 #else
   pros::Motor climb_motor1(19);
   pros::Motor climb_motor2(20, true);
   pros::Motor_Group climb = pros::Motor_Group({climb_motor1, climb_motor2});
+
+  pros::ADIDigitalOut climbPiston('A');
+  pros::ADIDigitalOut frontWings('B');
+  bool frontWingsDeployed = false;
 
 #endif
 
@@ -211,10 +218,14 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SINGLE); // Flipped single arcade
 
     #if CATA_BOT //cata bot controls
-    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)){
-      wingsDeployed = !wingsDeployed;
-			wings.set_value(wingsDeployed);
-    }
+    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+			frontWingsDeployed = !frontWingsDeployed;
+			frontWings.set_value(frontWingsDeployed);
+		}
+		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+			backWingsDeployed = !backWingsDeployed;
+			backWings.set_value(backWingsDeployed);
+		}
 
     if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
       intake = 80;
@@ -227,18 +238,37 @@ void opcontrol() {
     }
 
     //cata code goes here 
+    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+      cata = 127;
+    }
+    else{
+      cata = 0;
+    }
 
     #else //u bot controls
 
+    //climb rotate
     if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
       climb = 40;
     }
-    else if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+    else if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
       climb = -40;
     }
     else{
       climb = 0;
     }
+
+    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
+      climbPiston.setValue(true);
+    }
+    else if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
+      climbPiston.setValue(false);
+    }
+    //wings
+    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+			frontWingsDeployed = !frontWingsDeployed;
+			frontWings.set_value(frontWingsDeployed);
+		}
 
     #endif
 
