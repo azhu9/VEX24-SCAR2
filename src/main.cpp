@@ -5,7 +5,7 @@
 // https://ez-robotics.github.io/EZ-Template/
 /////
 
-#define CATA_BOT true
+#define CATA_BOT false
 // Chassis constructor
 #if CATA_BOT //to be done
 ez::Drive chassis (
@@ -175,8 +175,8 @@ void opcontrol() {
   pros::Motor cata_motor1(3);
   pros::Motor cata_motor2(4, true);
   pros::Motor_Group cata = pros::Motor_Group({cata_motor1, cata_motor2});
-  pros::ADIDigitalOut frontWings('A');
-  pros::ADIDigitalOut backWings('B');
+  // pros::ADIDigitalOut frontWings('A');
+  // pros::ADIDigitalOut backWings('B');
 
   bool frontWingsDeployed = false;
   bool backWingsDeployed = false;
@@ -185,9 +185,13 @@ void opcontrol() {
   pros::Motor climb_motor2(20, true);
   pros::Motor_Group climb = pros::Motor_Group({climb_motor1, climb_motor2});
 
-  pros::ADIDigitalOut climbPiston('A');
-  pros::ADIDigitalOut frontWings('B');
+  ez::Piston frontWing('C');
+  ez::Piston climbPistonUp('B');
+  ez::Piston climbPistonDown('A');
+
+
   bool frontWingsDeployed = false;
+  int velo = 0;
 
 #endif
 
@@ -248,26 +252,54 @@ void opcontrol() {
     #else //u bot controls
 
     //climb rotate
-    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-      climb = 40;
+    if(master.get_digital(DIGITAL_UP)){
+      velo = 127;
+
+      master.clear();
+      pros::delay(100);
+      master.print(0, 0, "climb up");
+      pros::delay(100);
+
     }
-    else if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-      climb = -40;
-    }
-    else{
-      climb = 0;
+    else if(master.get_digital(DIGITAL_DOWN)){
+      velo = -100;
+
+      master.clear();
+      pros::delay(100);
+      master.print(0, 0, "climb down");
+      pros::delay(100);
     }
 
-    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
-      climbPiston.setValue(true);
+    climb_motor1 = velo;
+
+    if(master.get_digital(DIGITAL_R1)){
+      climbPistonDown.set(false);
+      climbPistonUp.set(true);
+
+      master.clear();
+      pros::delay(100);
+      master.print(0, 0, "climb out");
+      pros::delay(100);
     }
-    else if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
-      climbPiston.setValue(false);
+    else if(master.get_digital(DIGITAL_R2)){
+      climbPistonUp.set(false);
+      climbPistonDown.set(true);
+
+      master.clear();
+      pros::delay(100);
+      master.print(0, 0, "climb in");
+      pros::delay(100);
     }
     //wings
-    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
+    if(master.get_digital(DIGITAL_L1)) {
 			frontWingsDeployed = !frontWingsDeployed;
-			frontWings.set_value(frontWingsDeployed);
+			frontWing.set(frontWingsDeployed);
+
+      master.clear();
+      pros::delay(100);
+      master.print(0, 0, "wings activated");
+      pros::delay(100);
+
 		}
 
     #endif
