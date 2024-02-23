@@ -108,6 +108,8 @@ void initialize() {
  */
 void disabled() {
   // . . .
+  ez::Piston climbPistonDown('A');
+  climbPistonDown.set(true);
 }
 
 

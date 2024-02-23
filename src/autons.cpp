@@ -6,7 +6,7 @@
 /////
 
 // These are out of 127
-const int DRIVE_SPEED = 30;  
+const int DRIVE_SPEED = 100;  
 const int TURN_SPEED = 90;
 const int SWING_SPEED = 90;
 
@@ -24,6 +24,7 @@ void default_constants() {
   chassis.pid_drive_exit_condition_set(300_ms, 1_in, 500_ms, 3_in, 750_ms, 750_ms);
 
   chassis.slew_drive_constants_set(7_in, 80);
+
 }
 
 
@@ -31,31 +32,71 @@ void default_constants() {
 // Drive Example
 ///
 void drive_example() {
+  ez::Piston frontWing('C');
   // The first parameter is target inches
   // The second parameter is max speed the robot will drive at
   // The third parameter is a boolean (true or false) for enabling/disabling a slew at the start of drive motions
   // for slew, only enable it when the drive distance is greater then the slew distance + a few inches
 
-  // chassis.pid_turn_set(10_deg, TURN_SPEED);
-  // chassis.pid_wait();
+  //drive down lane
+  chassis.pid_drive_set(-50_in, DRIVE_SPEED, true);  
+  chassis.pid_wait();
 
-  chassis.pid_drive_set(54_in, DRIVE_SPEED, true);
+  //turn to align with corner bar
+  chassis.pid_swing_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 20);
+  chassis.pid_wait();
+
+  //open wings
+  frontWing.set(true);
+  //drive to the bar
+  chassis.pid_drive_set(-19_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  //hit ball out of corner
+  chassis.pid_turn_set(-90_deg, 127);
+  chassis.pid_wait();
+
+  //close wings
+  frontWing.set(false);
+
+  chassis.pid_turn_set(90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(135_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(10_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(90_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(12_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+  
+  chassis.pid_drive_set(-12_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+  
+  chassis.pid_drive_set(12_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+  
+  chassis.pid_drive_set(-12_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
   chassis.pid_turn_set(-45_deg, TURN_SPEED);
   chassis.pid_wait();
+
+  chassis.pid_drive_set(26_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
   
-  chassis.pid_drive_set(30_in, DRIVE_SPEED, true);
+  chassis.pid_turn_set(0, TURN_SPEED);
   chassis.pid_wait();
 
-  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_drive_set(40_in, DRIVE_SPEED, true);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(12_in, DRIVE_SPEED);
-  chassis.pid_wait();
+  frontWing.set(true);
 
-
-  chassis.pid_wait();
 }
 
 ///
