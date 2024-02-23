@@ -31,7 +31,7 @@ void default_constants() {
 ///
 // Drive Example
 ///
-void drive_example() {
+void small_AWP() {
   ez::Piston frontWing('C');
   // The first parameter is target inches
   // The second parameter is max speed the robot will drive at
@@ -58,6 +58,7 @@ void drive_example() {
 
   //close wings
   frontWing.set(false);
+
 
   chassis.pid_turn_set(90_deg, TURN_SPEED);
   chassis.pid_wait();

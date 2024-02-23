@@ -4,7 +4,7 @@
 
 extern Drive chassis;
 
-void drive_example();
+void small_AWP();
 void turn_example();
 void drive_and_turn();
 void wait_until_change_speed();
