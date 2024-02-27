@@ -85,7 +85,7 @@ void initialize() {
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
     Auton("Pancake Bot Auton Win Point", small_AWP),
-    Auton("Example Turn\n\nTurn 3 times.", turn_example),
+    Auton("Pancake Auton Skills", turn_example),
     Auton("Drive and Turn\n\nDrive forward, turn, come back. ", drive_and_turn),
     Auton("Drive and Turn\n\nSlow down during drive.", wait_until_change_speed),
     Auton("Swing Example\n\nSwing in an 'S' curve", swing_example),
