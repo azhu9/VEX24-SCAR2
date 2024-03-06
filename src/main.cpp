@@ -4,7 +4,7 @@
 // https://ez-robotics.github.io/EZ-Template/
 /////
 
-#define BIG_BOT true
+#define BIG_BOT false
 // Chassis constructor
 #if BIG_BOT //to be done
 ez::Drive chassis (
@@ -39,10 +39,10 @@ ez::Drive chassis (
 
   // Right Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  ,{15, -16, 17, -18}
+  ,{16, -17, 18, -19}
 
   // IMU Port
-  ,1
+  ,9
 
   // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
   ,3.25
@@ -180,9 +180,11 @@ void opcontrol() {
   slapper.set_gearing(pros::E_MOTOR_GEAR_200);
 	slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 #else
-  pros::Motor climb_motor1(19);
-  pros::Motor climb_motor2(20, true);
+  pros::Motor climb_motor1(2);
+  pros::Motor climb_motor2(3, true);
   pros::Motor_Group climb = pros::Motor_Group({climb_motor1, climb_motor2});
+
+  pros::Motor intake_motor(15);
 
   ez::Piston frontWing('C');
   ez::Piston climbPistonUp('B');
@@ -253,6 +255,17 @@ void opcontrol() {
 
     #else //small bot controls
 
+
+    if(master.get_digital(DIGITAL_R1)){
+      intake_motor = 127;
+    }
+    else if(master.get_digital(DIGITAL_R2)){
+      intake_motor = -127;
+    }
+    else{
+      intake_motor = 0;
+    }
+
     //climb rotate
     if(master.get_digital(DIGITAL_UP)){
       velo = 127;
@@ -274,7 +287,7 @@ void opcontrol() {
 
     climb_motor1 = velo;
 
-    if(master.get_digital(DIGITAL_R1)){
+    if(master.get_digital(DIGITAL_L1)){
       climbPistonDown.set(false);
       climbPistonUp.set(true);
 
@@ -283,7 +296,7 @@ void opcontrol() {
       master.print(0, 0, "climb out");
       pros::delay(100);
     }
-    else if(master.get_digital(DIGITAL_R2)){
+    else if(master.get_digital(DIGITAL_L2)){
       climbPistonUp.set(false);
       climbPistonDown.set(true);
 
@@ -293,7 +306,7 @@ void opcontrol() {
       pros::delay(100);
     }
     //wings
-    if(master.get_digital(DIGITAL_L1)) {
+    if(master.get_digital(DIGITAL_A)) {
 			frontWingsDeployed = !frontWingsDeployed;
 			frontWing.set(frontWingsDeployed);
 
