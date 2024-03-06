@@ -1,24 +1,23 @@
 #include "main.h"
-
 /////
 // For installation, upgrading, documentations and tutorials, check out our website!
 // https://ez-robotics.github.io/EZ-Template/
 /////
 
-#define CATA_BOT false
+#define BIG_BOT true
 // Chassis constructor
-#if CATA_BOT //to be done
+#if BIG_BOT //to be done
 ez::Drive chassis (
   // Left Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  {-11, 12, -13, 14}
+  {-17, 18, -19, 20}
 
   // Right Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  ,{15, -16, 17, -18}
+  ,{12, -13, 14, -15}
 
   // IMU Port
-  ,1
+  ,9
 
   // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
   ,3.25
@@ -167,21 +166,19 @@ void autonomous() {
 void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
+  
 
-#if CATA_BOT
-  //update this
-  pros::Motor intake_motor1(1);
-  pros::Motor intake_motor2(2, true); 
-  pros::Motor_Group intake = pros::Motor_Group({intake_motor1, intake_motor2});
+#if BIG_BOT
+  pros::Motor intake_motor(10);
+  pros::Motor slapper(1);
 
-  pros::Motor cata_motor1(3);
-  pros::Motor cata_motor2(4, true);
-  pros::Motor_Group cata = pros::Motor_Group({cata_motor1, cata_motor2});
-  // pros::ADIDigitalOut frontWings('A');
-  // pros::ADIDigitalOut backWings('B');
+  pros::ADIDigitalOut backWings('B');
 
   bool frontWingsDeployed = false;
   bool backWingsDeployed = false;
+
+  slapper.set_gearing(pros::E_MOTOR_GEAR_200);
+	slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 #else
   pros::Motor climb_motor1(19);
   pros::Motor climb_motor2(20, true);
@@ -200,22 +197,22 @@ void opcontrol() {
   
   while (true) {
     
-    // PID Tuner
-    // After you find values that you're happy with, you'll have to set them in auton.cpp
-    if (!pros::competition::is_connected()) { 
-      // Enable / Disable PID Tuner
-      //  When enabled: 
-      //  * use A and Y to increment / decrement the constants
-      //  * use the arrow keys to navigate the constants
-      if (master.get_digital_new_press(DIGITAL_X)) 
-        chassis.pid_tuner_toggle();
+    // // PID Tuner
+    // // After you find values that you're happy with, you'll have to set them in auton.cpp
+    // if (!pros::competition::is_connected()) { 
+    //   // Enable / Disable PID Tuner
+    //   //  When enabled: 
+    //   //  * use A and Y to increment / decrement the constants
+    //   //  * use the arrow keys to navigate the constants
+    //   if (master.get_digital_new_press(DIGITAL_X)) 
+    //     chassis.pid_tuner_toggle();
         
-      // Trigger the selected autonomous routine
-      if (master.get_digital_new_press(DIGITAL_B)) 
-        autonomous();
+    //   // Trigger the selected autonomous routine
+    //   if (master.get_digital_new_press(DIGITAL_B)) 
+    //     autonomous();
 
-      chassis.pid_tuner_iterate(); // Allow PID Tuner to iterate
-    } 
+    //   chassis.pid_tuner_iterate(); // Allow PID Tuner to iterate
+    // } 
 
     // chassis.opcontrol_tank(); // Tank control
     chassis.opcontrol_arcade_standard(ez::SPLIT); // Standard split arcade
@@ -223,35 +220,38 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SPLIT); // Flipped split arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE); // Flipped single arcade
 
-    #if CATA_BOT //cata bot controls
-    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-			frontWingsDeployed = !frontWingsDeployed;
-			frontWings.set_value(frontWingsDeployed);
-		}
-		if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+    #if BIG_BOT //big bot controls
+		if(master.get_digital_new_press(DIGITAL_L2)) {
 			backWingsDeployed = !backWingsDeployed;
 			backWings.set_value(backWingsDeployed);
 		}
 
-    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
-      intake = 80;
+    if(master.get_digital(DIGITAL_R1)){
+      intake_motor = 127;
     }
-    else if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
-      intake = -80;
-    }
-    else{
-      intake = 0;
-    }
-
-    //cata code goes here 
-    if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
-      cata = 127;
+    else if(master.get_digital(DIGITAL_R2)){
+      intake_motor = -127;
     }
     else{
-      cata = 0;
+      intake_motor = 0;
     }
 
-    #else //u bot controls
+    if(master.get_digital(DIGITAL_X)){
+      int pos = 0;
+      int angle = 825;  //this is 360 degrees
+      slapper.tare_position();
+
+      while(pos < angle){
+        slapper = 100;
+        pos = slapper.get_position(); 
+      }
+    }
+    else{
+      slapper.brake();
+    }
+
+
+    #else //small bot controls
 
     //climb rotate
     if(master.get_digital(DIGITAL_UP)){
