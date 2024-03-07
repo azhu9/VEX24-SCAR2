@@ -176,7 +176,7 @@ void opcontrol() {
   pros::Motor intake_motor(10);
   pros::Motor slapper(1);
 
-  pros::ADIDigitalOut backWings('B');
+  pros::ADIDigitalOut backWings('H');
 
   bool frontWingsDeployed = false;
   bool backWingsDeployed = false;
