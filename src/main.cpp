@@ -1,10 +1,11 @@
 #include "main.h"
+#include "autons.hpp"
 /////
 // For installation, upgrading, documentations and tutorials, check out our website!
 // https://ez-robotics.github.io/EZ-Template/
 /////
 
-#define BIG_BOT false
+
 // Chassis constructor
 #if BIG_BOT //to be done
 ez::Drive chassis (
@@ -35,11 +36,12 @@ ez::Drive chassis (
 ez::Drive chassis (
   // Left Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  {-11, 12, -13, 14}
+  {16, -17, 18, -19}
+  
 
   // Right Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  ,{16, -17, 18, -19}
+  ,{-11, 12, -13, 14}
 
   // IMU Port
   ,9
@@ -82,15 +84,17 @@ void initialize() {
   // chassis.opcontrol_curve_buttons_right_set(pros::E_CONTROLLER_DIGITAL_Y,    pros::E_CONTROLLER_DIGITAL_A);
 
   // Autonomous Selector using LLEMU
+  #if BIG_BOT
   ez::as::auton_selector.autons_add({
-    Auton("Pancake Bot Auton Win Point", small_AWP),
-    Auton("Pancake Auton Skills", turn_example),
-    Auton("Drive and Turn\n\nDrive forward, turn, come back. ", drive_and_turn),
-    Auton("Drive and Turn\n\nSlow down during drive.", wait_until_change_speed),
-    Auton("Swing Example\n\nSwing in an 'S' curve", swing_example),
-    Auton("Combine all 3 movements", combining_movements),
-    Auton("Interference\n\nAfter driving forward, robot performs differently if interfered or not.", interfered_example),
+    Auton("Big Bot Skills", big_bot_skills),
+    Auton("Big Bot Match Autonomous", big_bot_match_auton),
   });
+  #else
+  ez::as::auton_selector.autons_add({
+    Auton("Small Bot Skills", small_bot_skills),
+    Auton("Small Bot Match Autonomous", small_bot_match_auton),
+  });
+  #endif
 
   // Initialize chassis and auton selector
   chassis.initialize();

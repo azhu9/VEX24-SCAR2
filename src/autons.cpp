@@ -1,14 +1,7 @@
 #include "main.h"
+#include "helpermethods.cpp"
 
-/////
-// For installation, upgrading, documentations and tutorials, check out our website!
-// https://ez-robotics.github.io/EZ-Template/
-/////
-
-// These are out of 127
-const int DRIVE_SPEED = 100;  
-const int TURN_SPEED = 90;
-const int SWING_SPEED = 90;
+//see helpermethods.cpp for constants and helper methods
 
 ///
 // Constants
@@ -24,19 +17,76 @@ void default_constants() {
   chassis.pid_drive_exit_condition_set(300_ms, 1_in, 500_ms, 3_in, 750_ms, 750_ms);
 
   chassis.slew_drive_constants_set(7_in, 80);
-
 }
-
-
-///
-// Drive Example
-///
-void small_AWP() {
-  ez::Piston frontWing('C');
+  // DRIVE FUNCTION PARAMS
   // The first parameter is target inches
   // The second parameter is max speed the robot will drive at
   // The third parameter is a boolean (true or false) for enabling/disabling a slew at the start of drive motions
   // for slew, only enable it when the drive distance is greater then the slew distance + a few inches
+#if BIG_BOT 
+  void big_bot_skills(){
+    
+    //matchload 10
+    // for(int i = 0; i < 10; i++){
+    //           int pos = 0;
+    //     int angle = 720;  //this is 360 degrees
+    //     slapper.tare_position();
+
+    //     while(pos < angle){
+    //       slapper = 100;
+    //       pos = slapper.get_position();
+    //       pros::delay(10);
+    //     }
+    //     slapper.brake();
+
+    //     if(i != 9){
+    //       pros::delay(2000);
+    //     }
+    // }
+
+      slapperRev(10);
+
+      //curve bot to hug the wall
+      chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 70);
+      chassis.pid_wait();
+
+      //drive through alley
+      chassis.pid_drive_set(-60_in, DRIVE_SPEED, true);
+      chassis.pid_wait();
+
+      //curve into the goal
+      chassis.pid_swing_relative_set(ez::LEFT_SWING, -90_deg, SWING_SPEED, 70);
+      chassis.pid_wait();
+
+      //back up
+      chassis.pid_drive_set(12_in, DRIVE_SPEED, true);
+      chassis.pid_wait();
+
+      //push into goal again
+      chassis.pid_drive_set(-18_in, 127, true);
+      chassis.pid_wait();
+ 
+  }
+
+  void big_bot_match_auton(){
+
+  }
+#else
+  void small_bot_skills(){
+  }
+
+  void small_bot_match_auton(){
+  }
+#endif
+
+
+
+
+
+//Below are old autons and tests
+
+void small_AWP() {
+  ez::Piston frontWing('C');
 
   //drive down lane
   chassis.pid_drive_set(-50_in, DRIVE_SPEED, true);  
