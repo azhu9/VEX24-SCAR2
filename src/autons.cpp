@@ -9,19 +9,36 @@ const int DRIVE_SPEED = 100;
 const int TURN_SPEED = 90;
 const int SWING_SPEED = 90;
 
-//Motor declaration
-pros::Motor intake(10);
-pros::Motor slapper(1);
-ez::Piston backWing('H');
 
+#if BIG_BOT
+//Motor declaration
+  pros::Motor intake(10);
+  pros::Motor slapper(1);
+  ez::Piston leftWing('H', false);
+  ez::Piston rightWing('A', false);
+
+#else
+  pros::Motor intake(15);
+  pros::Motor slapper(1);
+  ez::Piston leftWing('C', false);
+  ez::Piston rightWing('A', false);
+#endif
 //Helper Methods
 
-void backWingsOut(){
-  backWing.set(true);
+void leftWingOut(){
+  leftWing.set(true);
 }
 
-void backWingsIn(){
-  backWing.set(false);
+void leftWingIn(){
+  leftWing.set(false);
+}
+
+void rightWingOut(){
+  rightWing.set(true);
+}
+
+void rightWingIn(){
+  rightWing.set(false);
 }
 
 void intakeIn(){
@@ -50,7 +67,7 @@ void slapperRev(int rep){
         slapper.brake();
 
         if(i != 9){
-          pros::delay(2000);
+          pros::delay(1750);
         }
     }
 }
@@ -73,19 +90,29 @@ void default_constants() {
   // The third parameter is a boolean (true or false) for enabling/disabling a slew at the start of drive motions
   // for slew, only enable it when the drive distance is greater then the slew distance + a few inches
 #if BIG_BOT 
+
+  //BIG BOT SKILLS AUTON
+  //20 matchloads, start at the matchload bar with tool
   void big_bot_skills(){
     
-    //matchload 10
-    backWingsOut();
+    // //matchload 20
+    leftWingOut();
     pros::delay(500);
 
-    slapperRev(10);
+    slapperRev(20);
     
-    backWingsIn();
+    leftWingIn();
     pros::delay(500);
+    rightWingOut();
+
+    chassis.pid_turn_set(11_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-15_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
 
     //curve bot to hug the wall
-    chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 55);
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, 60, 35);
     // chassis.pid_turn_set(-45_deg, TURN_SPEED);
     chassis.pid_wait();
 
@@ -101,20 +128,119 @@ void default_constants() {
     chassis.pid_wait();
     
     //back up
-    chassis.pid_drive_set(12_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
     chassis.pid_wait();
+
+    rightWingIn();
+    pros::delay(500);
 
     //push into goal again
-    chassis.pid_drive_set(-18_in, 127, true);
+    chassis.pid_drive_set(-22_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
+    chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(45_deg, TURN_SPEED);
+
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 60);
+
+
+
+
+    //push into goal again
+    // chassis.pid_drive_set(-22_in, 127, true);
+    // chassis.pid_wait();
+
   }
-
+  //BIG BOT MATCH AUTON
+  //10 matchloads, start at the matchload bar with tool
   void big_bot_match_auton(){
+    leftWingOut();
+    pros::delay(500);
 
+    slapperRev(10);
+    
+    leftWingIn();
+    pros::delay(500);
+    rightWingOut();
+
+    chassis.pid_turn_set(11_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-15_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    //curve bot to hug the wall
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, 60, 35);
+    // chassis.pid_turn_set(-45_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    //drive through alley
+    chassis.pid_drive_set(-55_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    //curve into the goal
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, -90_deg, SWING_SPEED, 60);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-18_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+    
+    //back up
+    chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    rightWingIn();
+    pros::delay(500);
+
+    //push into goal again
+    chassis.pid_drive_set(-22_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
   }
 #else
   void small_bot_skills(){
+    rightWingOut();
+    pros::delay(500);
+
+    slapperRev(5);
+    
+    rightWingIn();
+    pros::delay(500);
+    leftWingOut();
+
+    // chassis.pid_turn_set(11_deg, TURN_SPEED);
+    // chassis.pid_wait();
+
+    chassis.pid_drive_set(-15_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    //curve bot to hug the wall
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, 45_deg, 60, 35);
+    // chassis.pid_turn_set(-45_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    //drive through alley
+    chassis.pid_drive_set(-55_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    //curve into the goal
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, 90_deg, SWING_SPEED, 60);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-18_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+    
+    //back up
+    chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    leftWingIn();
+    pros::delay(500);
+
+    //push into goal again
+    chassis.pid_drive_set(-22_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
   }
 
   void small_bot_match_auton(){

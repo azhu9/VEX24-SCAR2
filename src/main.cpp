@@ -1,5 +1,6 @@
 #include "main.h"
 #include "autons.hpp"
+#include "pros/motors.h"
 /////
 // For installation, upgrading, documentations and tutorials, check out our website!
 // https://ez-robotics.github.io/EZ-Template/
@@ -176,28 +177,29 @@ void opcontrol() {
   pros::Motor intake_motor(10);
   pros::Motor slapper(1);
 
-  pros::ADIDigitalOut backWings('H');
-
-
-  bool backWingsDeployed = false;
-
-  slapper.set_gearing(pros::E_MOTOR_GEAR_200);
-	slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-#else
-  pros::Motor climb_motor1(2);
-  pros::Motor climb_motor2(3, true);
-  pros::Motor_Group climb = pros::Motor_Group({climb_motor1, climb_motor2});
-  pros::Motor slapper(1);
-
-  pros::Motor intake_motor(15);
-
-  ez::Piston rightWing('C', false);
-  ez::Piston leftWing('A', false);
-
+  ez::Piston leftWing('H', false);
+  ez::Piston rightWing('A', false);
 
 
   bool leftWingDeployed = false;
   bool rightWingDeployed = false;
+
+  slapper.set_gearing(pros::E_MOTOR_GEAR_200);
+	slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+#else
+  pros::Motor slapper(1);
+
+  pros::Motor intake_motor(15);
+  intake_motor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+
+  ez::Piston rightWing('C', false);
+  ez::Piston leftWing('A', false);
+
+  bool leftWingDeployed = false;
+  bool rightWingDeployed = false;
+
+  slapper.set_gearing(pros::E_MOTOR_GEAR_200);
+	slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
 #endif
 
@@ -239,9 +241,14 @@ void opcontrol() {
       intake_motor = 0;
     }
 
+    if(master.get_digital_new_press(DIGITAL_L1)) {
+			leftWingDeployed = !leftWingDeployed;
+			leftWing.set(leftWingDeployed);
+		}
+
     if(master.get_digital_new_press(DIGITAL_L2)) {
-			backWingsDeployed = !backWingsDeployed;
-			backWings.set(backWingsDeployed);
+			rightWingDeployed = !rightWingDeployed;
+			rightWing.set(rightWingDeployed);
 		}
 
       if(master.get_digital(DIGITAL_X)){
@@ -256,6 +263,10 @@ void opcontrol() {
     }
       else{
         slapper.brake();
+      }
+
+      if(master.get_digital(DIGITAL_B)){
+        slapper = -30;
       }
 
 
@@ -282,17 +293,21 @@ void opcontrol() {
 		}
 
       if(master.get_digital(DIGITAL_X)){
-      int pos = -825;
-      int angle = 0;  //this is 360 degrees
+      int pos = 0;
+      int angle = -825;  //this is 360 degrees
       slapper.tare_position();
 
-      while(pos < angle){
+      while(pos > angle){
         slapper = -100;
         pos = slapper.get_position();
       }
     }
       else{
         slapper.brake();
+      }
+
+      if(master.get_digital(DIGITAL_B)){
+        slapper = 30;
       }
 
     #endif
