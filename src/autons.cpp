@@ -39,7 +39,7 @@ void intakeStop(){
 void slapperRev(int rep){
     for(int i = 0; i < rep; i++){
         int pos = 0;
-        int angle = 720;  //this is 360 degrees
+        int angle = 680;  //this is 360 degrees
         slapper.tare_position();
 
         while(pos < angle){
@@ -76,45 +76,38 @@ void default_constants() {
   void big_bot_skills(){
     
     //matchload 10
-    // for(int i = 0; i < 10; i++){
-    //           int pos = 0;
-    //     int angle = 720;  //this is 360 degrees
-    //     slapper.tare_position();
+    backWingsOut();
+    pros::delay(500);
 
-    //     while(pos < angle){
-    //       slapper = 100;
-    //       pos = slapper.get_position();
-    //       pros::delay(10);
-    //     }
-    //     slapper.brake();
+    slapperRev(10);
+    
+    backWingsIn();
+    pros::delay(500);
 
-    //     if(i != 9){
-    //       pros::delay(2000);
-    //     }
-    // }
+    //curve bot to hug the wall
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 55);
+    // chassis.pid_turn_set(-45_deg, TURN_SPEED);
+    chassis.pid_wait();
 
-      slapperRev(10);
+    //drive through alley
+    chassis.pid_drive_set(-55_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
 
-      //curve bot to hug the wall
-      chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 70);
-      chassis.pid_wait();
+    //curve into the goal
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, -90_deg, SWING_SPEED, 60);
+    chassis.pid_wait();
 
-      //drive through alley
-      chassis.pid_drive_set(-60_in, DRIVE_SPEED, true);
-      chassis.pid_wait();
+    chassis.pid_drive_set(-18_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+    
+    //back up
+    chassis.pid_drive_set(12_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
 
-      //curve into the goal
-      chassis.pid_swing_relative_set(ez::LEFT_SWING, -90_deg, SWING_SPEED, 70);
-      chassis.pid_wait();
+    //push into goal again
+    chassis.pid_drive_set(-18_in, 127, true);
+    chassis.pid_wait();
 
-      //back up
-      chassis.pid_drive_set(12_in, DRIVE_SPEED, true);
-      chassis.pid_wait();
-
-      //push into goal again
-      chassis.pid_drive_set(-18_in, 127, true);
-      chassis.pid_wait();
- 
   }
 
   void big_bot_match_auton(){

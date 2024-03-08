@@ -4,7 +4,7 @@
 
 extern Drive chassis;
 
-#define BIG_BOT true
+#define BIG_BOT false
 
 #if BIG_BOT
     void big_bot_skills();

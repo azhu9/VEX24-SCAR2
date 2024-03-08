@@ -76,7 +76,7 @@ void initialize() {
   // Configure your chassis controls
   chassis.opcontrol_curve_buttons_toggle(true); // Enables modifying the controller curve with buttons on the joysticks
   chassis.opcontrol_drive_activebrake_set(0); // Sets the active brake kP. We recommend 0.1.
-  chassis.opcontrol_curve_default_set(0, 0); // Defaults for curve. If using tank, only the first parameter is used. (Comment this line out if you have an SD card!)  
+  chassis.opcontrol_curve_default_set(3.9, 4.3); // Defaults for curve. If using tank, only the first parameter is used. (Comment this line out if you have an SD card!)  
   default_constants(); // Set the drive to your own constants from autons.cpp!
 
   // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
@@ -171,14 +171,14 @@ void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   
-
+  
 #if BIG_BOT
   pros::Motor intake_motor(10);
   pros::Motor slapper(1);
 
   pros::ADIDigitalOut backWings('H');
 
-  bool frontWingsDeployed = false;
+
   bool backWingsDeployed = false;
 
   slapper.set_gearing(pros::E_MOTOR_GEAR_200);
@@ -187,16 +187,17 @@ void opcontrol() {
   pros::Motor climb_motor1(2);
   pros::Motor climb_motor2(3, true);
   pros::Motor_Group climb = pros::Motor_Group({climb_motor1, climb_motor2});
+  pros::Motor slapper(1);
 
   pros::Motor intake_motor(15);
 
-  ez::Piston frontWing('C');
-  ez::Piston climbPistonUp('B');
-  ez::Piston climbPistonDown('A');
+  ez::Piston rightWing('C', false);
+  ez::Piston leftWing('A', false);
 
 
-  bool frontWingsDeployed = false;
-  int velo = 0;
+
+  bool leftWingDeployed = false;
+  bool rightWingDeployed = false;
 
 #endif
 
@@ -227,10 +228,6 @@ void opcontrol() {
     // chassis.opcontrol_arcade_flipped(ez::SINGLE); // Flipped single arcade
 
     #if BIG_BOT //big bot controls
-		if(master.get_digital_new_press(DIGITAL_L2)) {
-			backWingsDeployed = !backWingsDeployed;
-			backWings.set_value(backWingsDeployed);
-		}
 
     if(master.get_digital(DIGITAL_R1)){
       intake_motor = 127;
@@ -242,7 +239,12 @@ void opcontrol() {
       intake_motor = 0;
     }
 
-    if(master.get_digital(DIGITAL_X)){
+    if(master.get_digital_new_press(DIGITAL_L2)) {
+			backWingsDeployed = !backWingsDeployed;
+			backWings.set(backWingsDeployed);
+		}
+
+      if(master.get_digital(DIGITAL_X)){
       int pos = 0;
       int angle = 825;  //this is 360 degrees
       slapper.tare_position();
@@ -252,74 +254,46 @@ void opcontrol() {
         pos = slapper.get_position(); 
       }
     }
-    else{
-      slapper.brake();
-    }
+      else{
+        slapper.brake();
+      }
 
 
-    #else //small bot controls
+    #else
 
-
-    if(master.get_digital(DIGITAL_R1)){
-      intake_motor = 127;
-    }
-    else if(master.get_digital(DIGITAL_R2)){
+      if(master.get_digital(DIGITAL_R1)){
       intake_motor = -127;
-    }
-    else{
-      intake_motor = 0;
-    }
+      }
+      else if(master.get_digital(DIGITAL_R2)){
+        intake_motor = 127;
+      }
+      else{
+        intake_motor = 0;
+      }
 
-    //climb rotate
-    if(master.get_digital(DIGITAL_UP)){
-      velo = 127;
-
-      master.clear();
-      pros::delay(100);
-      master.print(0, 0, "climb up");
-      pros::delay(100);
-
-    }
-    else if(master.get_digital(DIGITAL_DOWN)){
-      velo = -100;
-
-      master.clear();
-      pros::delay(100);
-      master.print(0, 0, "climb down");
-      pros::delay(100);
-    }
-
-    climb_motor1 = velo;
-
-    if(master.get_digital(DIGITAL_L1)){
-      climbPistonDown.set(false);
-      climbPistonUp.set(true);
-
-      master.clear();
-      pros::delay(100);
-      master.print(0, 0, "climb out");
-      pros::delay(100);
-    }
-    else if(master.get_digital(DIGITAL_L2)){
-      climbPistonUp.set(false);
-      climbPistonDown.set(true);
-
-      master.clear();
-      pros::delay(100);
-      master.print(0, 0, "climb in");
-      pros::delay(100);
-    }
-    //wings
-    if(master.get_digital(DIGITAL_A)) {
-			frontWingsDeployed = !frontWingsDeployed;
-			frontWing.set(frontWingsDeployed);
-
-      master.clear();
-      pros::delay(100);
-      master.print(0, 0, "wings activated");
-      pros::delay(100);
-
+      if(master.get_digital_new_press(DIGITAL_L1)) {
+        leftWingDeployed = !leftWingDeployed;
+        leftWing.set(leftWingDeployed);
 		}
+
+    if(master.get_digital_new_press(DIGITAL_L2)) {
+        rightWingDeployed = !rightWingDeployed;
+        rightWing.set(rightWingDeployed);
+		}
+
+      if(master.get_digital(DIGITAL_X)){
+      int pos = -825;
+      int angle = 0;  //this is 360 degrees
+      slapper.tare_position();
+
+      while(pos < angle){
+        slapper = -100;
+        pos = slapper.get_position();
+      }
+    }
+      else{
+        slapper.brake();
+      }
 
     #endif
 
