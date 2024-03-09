@@ -60,7 +60,7 @@ void intakeStop(){
 void slapperRev(int rep){
     for(int i = 0; i < rep; i++){
         int pos = 0;
-        int angle = 600;  //this is 360 degrees
+        int angle = 615;  //this is 360 degrees
         slapper.tare_position();
 
         while(pos < angle){
