@@ -1,5 +1,6 @@
 #include "main.h"
 #include "autons.hpp"
+#include "pros/misc.h"
 #include "pros/motors.h"
 /////
 // For installation, upgrading, documentations and tutorials, check out our website!
@@ -37,15 +38,15 @@ ez::Drive chassis (
 ez::Drive chassis (
   // Left Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  {16, -17, 18, -19}
+  {-10, 9, -8, 7}
   
 
   // Right Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  ,{-11, 12, -13, 14}
+  ,{-4, 3, -2, 1}
 
   // IMU Port
-  ,9
+  ,18
 
   // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
   ,3.25
@@ -187,19 +188,25 @@ void opcontrol() {
   slapper.set_gearing(pros::E_MOTOR_GEAR_200);
 	slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 #else
-  pros::Motor slapper(1);
+  pros::Motor leftSlapper(18);
+  pros::Motor rightSlapper(18);
 
-  pros::Motor intake_motor(15);
+  pros::Motor intake_motor(11);
   intake_motor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
-  ez::Piston rightWing('C', false);
-  ez::Piston leftWing('A', false);
+  pros::Motor climb_motor(20);
+
+  ez::Piston rightWing('A', false);
+  ez::Piston leftWing('B', false);
 
   bool leftWingDeployed = false;
   bool rightWingDeployed = false;
 
-  slapper.set_gearing(pros::E_MOTOR_GEAR_200);
-	slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+  leftSlapper.set_gearing(pros::E_MOTOR_GEAR_600);
+	leftSlapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+
+  rightSlapper.set_gearing(pros::E_MOTOR_GEAR_600);
+	rightSlapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
 #endif
 
@@ -292,22 +299,46 @@ void opcontrol() {
         rightWing.set(rightWingDeployed);
 		}
 
-      if(master.get_digital(DIGITAL_X)){
+      if(master.get_digital(DIGITAL_Y)){
       int pos = 0;
       int angle = -825;  //this is 360 degrees
-      slapper.tare_position();
+      leftSlapper.tare_position();
 
       while(pos > angle){
-        slapper = -100;
-        pos = slapper.get_position();
+        leftSlapper = -100;
+        pos = leftSlapper.get_position();
       }
     }
       else{
-        slapper.brake();
+        leftSlapper.brake();
       }
 
-      if(master.get_digital(DIGITAL_B)){
-        slapper = 50;
+      if(master.get_digital(DIGITAL_A)){
+      int pos = 0;
+      int angle = 825;  //this is 360 degrees
+      leftSlapper.tare_position();
+
+      while(pos < angle){
+        leftSlapper = 100;
+        pos = leftSlapper.get_position();
+      }
+      }
+      else{
+        leftSlapper.brake();
+      }
+
+      if(master.get_digital(DIGITAL_A)){
+        leftSlapper = -50;
+      }
+
+      if(master.get_digital(DIGITAL_X)){
+        climb_motor = -100;
+      }
+      else if(master.get_digital(DIGITAL_B)){
+        climb_motor = 100;
+      }
+      else {
+        climb_motor.brake();
       }
 
     #endif
