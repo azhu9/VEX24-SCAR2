@@ -1,4 +1,6 @@
+#include "EZ-Template/util.hpp"
 #include "main.h"
+#include "pros/rtos.hpp"
 
 //see helpermethods.cpp for constants and helper methods
 
@@ -41,6 +43,8 @@ void rightWingIn(){
   rightWing.set(false);
 }
 
+
+#if BIG_BOT
 void intakeIn(){
   intake = 127;
 }
@@ -71,6 +75,38 @@ void slapperRev(int rep){
         }
     }
 }
+#else
+  void intakeIn(){
+  intake = -127;
+  }
+
+  void intakeOut(){
+  intake = 127;
+  }
+
+  void intakeStop(){
+  intake.brake();
+  }
+
+  void slapperRev(int rep){
+    for(int i = 0; i < rep; i++){
+        int pos = 0;
+        int angle = -660;  //this is 360 degrees
+        slapper.tare_position();
+
+        while(pos > angle){
+          slapper = -100;
+          pos = slapper.get_position();
+          pros::delay(10);
+        }
+        slapper.brake();
+
+        if(i != 9){
+          pros::delay(1750);
+        }
+    }
+}
+#endif
 
 void default_constants() {
   chassis.pid_heading_constants_set(3, 0, 20);
@@ -99,13 +135,28 @@ void default_constants() {
     leftWingOut();
     pros::delay(500);
 
-    slapperRev(20);
+    slapperRev(10);
+
+    chassis.pid_drive_set(-7_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(-45_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
+    chassis.pid_wait();
+    
+    chassis.pid_drive_set(7_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    slapperRev(10);
     
     leftWingIn();
     pros::delay(500);
     rightWingOut();
 
-    chassis.pid_turn_set(11_deg, TURN_SPEED);
+    //align to 45 degrees
+    chassis.pid_turn_relative_set(11_deg, TURN_SPEED);
     chassis.pid_wait();
 
     chassis.pid_drive_set(-15_in, DRIVE_SPEED, true);
@@ -180,6 +231,9 @@ void default_constants() {
     chassis.pid_drive_set(-55_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
+    rightWingIn();
+    pros::delay(500);
+
     //curve into the goal
     chassis.pid_swing_relative_set(ez::LEFT_SWING, -90_deg, SWING_SPEED, 60);
     chassis.pid_wait();
@@ -191,19 +245,24 @@ void default_constants() {
     chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
-    rightWingIn();
-    pros::delay(500);
-
     //push into goal again
     chassis.pid_drive_set(-22_in, DRIVE_SPEED, true);
     chassis.pid_wait();
   }
 #else
   void small_bot_skills(){
+
+    intakeIn();
+    pros::delay(500);
+    intakeStop();
+    intakeOut();
+    pros::delay(500);
+    intakeStop();
+
     rightWingOut();
     pros::delay(500);
 
-    slapperRev(5);
+    slapperRev(25);
     
     rightWingIn();
     pros::delay(500);
@@ -212,20 +271,20 @@ void default_constants() {
     // chassis.pid_turn_set(11_deg, TURN_SPEED);
     // chassis.pid_wait();
 
-    chassis.pid_drive_set(-15_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(-17_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
     //curve bot to hug the wall
-    chassis.pid_swing_relative_set(ez::LEFT_SWING, 45_deg, 60, 35);
-    // chassis.pid_turn_set(-45_deg, TURN_SPEED);
+    // chassis.pid_swing_relative_set(ez::RIGHT_SWING, 45_deg, 60, 75);
+    chassis.pid_turn_set(45_deg, TURN_SPEED);
     chassis.pid_wait();
 
     //drive through alley
-    chassis.pid_drive_set(-55_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(-60_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
-    //curve into the goal
-    chassis.pid_swing_relative_set(ez::LEFT_SWING, 90_deg, SWING_SPEED, 60);
+    // curve into the goal
+    chassis.pid_swing_relative_set(ez::RIGHT_SWING, 90_deg, SWING_SPEED, 70);
     chassis.pid_wait();
 
     chassis.pid_drive_set(-18_in, DRIVE_SPEED, true);

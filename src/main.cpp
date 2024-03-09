@@ -266,7 +266,7 @@ void opcontrol() {
       }
 
       if(master.get_digital(DIGITAL_B)){
-        slapper = -30;
+        slapper = -50;
       }
 
 
@@ -307,7 +307,7 @@ void opcontrol() {
       }
 
       if(master.get_digital(DIGITAL_B)){
-        slapper = 30;
+        slapper = 50;
       }
 
     #endif
