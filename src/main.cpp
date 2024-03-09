@@ -257,7 +257,7 @@ void opcontrol() {
       slapper.tare_position();
 
       while(pos < angle){
-        slapper = 100;
+        slapper = 127;
         pos = slapper.get_position(); 
       }
     }
@@ -298,7 +298,7 @@ void opcontrol() {
       slapper.tare_position();
 
       while(pos > angle){
-        slapper = -100;
+        slapper = -127;
         pos = slapper.get_position();
       }
     }
