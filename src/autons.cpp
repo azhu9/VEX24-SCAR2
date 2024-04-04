@@ -43,7 +43,6 @@ void rightWingIn(){
   rightWing.set(false);
 }
 
-
 #if BIG_BOT
 void intakeIn(){
   intake = 127;
@@ -60,7 +59,7 @@ void intakeStop(){
 void slapperRev(int rep){
     for(int i = 0; i < rep; i++){
         int pos = 0;
-        int angle = 615;  //this is 360 degrees
+        int angle = 600;  //this is 360 degrees
         slapper.tare_position();
 
         while(pos < angle){
@@ -85,7 +84,7 @@ void slapperRev(int rep){
   }
 
   void intakeStop(){
-  intake.brake();
+  intake = 0;
   }
 
   void slapperRev(int rep){
@@ -149,7 +148,7 @@ void default_constants() {
     // chassis.pid_drive_set(7_in, DRIVE_SPEED, true);
     // chassis.pid_wait();
 
-    slapperRev(20);
+    slapperRev(25);
     
     leftWingIn();
     pros::delay(500);
@@ -172,35 +171,37 @@ void default_constants() {
     chassis.pid_wait();
 
     //curve into the goal
-    chassis.pid_swing_relative_set(ez::LEFT_SWING, -90_deg, 80, 60);
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, -90_deg, SWING_SPEED, 60);
     chassis.pid_wait();
 
-    chassis.pid_drive_set(-18_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(-18_in, 127, true);
     chassis.pid_wait();
     
     //back up
     chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
-    chassis.pid_turn_relative_set(25_deg, TURN_SPEED);
-    chassis.pid_wait();
-
-    chassis.pid_swing_relative_set(ez::LEFT_SWING, -25_deg, 127, 95);
-    chassis.pid_wait();
-
     rightWingIn();
     pros::delay(500);
 
     //push into goal again
-    chassis.pid_drive_set(-22_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(-22_in, 127, true);
     chassis.pid_wait();
 
     chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
-    // chassis.pid_turn_set(45_deg, TURN_SPEED);
+    chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
+    chassis.pid_wait();
 
-    // chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 60);
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 60);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(30_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
 
   }
   //BIG BOT MATCH AUTON
@@ -209,13 +210,14 @@ void default_constants() {
     leftWingOut();
     pros::delay(500);
 
-    slapperRev(10);
+    slapperRev(12);
     
     leftWingIn();
     pros::delay(500);
     rightWingOut();
 
-    chassis.pid_turn_set(11_deg, TURN_SPEED);
+    //align to 45 degrees
+    chassis.pid_turn_relative_set(11_deg, TURN_SPEED);
     chassis.pid_wait();
 
     chassis.pid_drive_set(-15_in, DRIVE_SPEED, true);
@@ -230,23 +232,39 @@ void default_constants() {
     chassis.pid_drive_set(-55_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
-    rightWingIn();
-    pros::delay(500);
-
     //curve into the goal
     chassis.pid_swing_relative_set(ez::LEFT_SWING, -90_deg, SWING_SPEED, 60);
     chassis.pid_wait();
 
-    chassis.pid_drive_set(-18_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(-18_in, 127, true);
     chassis.pid_wait();
     
     //back up
     chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
+    rightWingIn();
+    pros::delay(500);
+
     //push into goal again
-    chassis.pid_drive_set(-22_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(-22_in, 127, true);
     chassis.pid_wait();
+
+    chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 60);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(30_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
   }
 #else
   void small_bot_skills(){
@@ -317,13 +335,33 @@ void default_constants() {
     chassis.pid_swing_relative_set(ez::RIGHT_SWING, 25_deg, 127, 95);
     chassis.pid_wait();
 
-    chassis.pid_drive_set(-22_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(-22_in, 127, true);
     chassis.pid_wait();
-
 
   }
 
   void small_bot_match_auton(){
+    intakeIn();
+    pros::delay(500);
+    intakeStop();
+    intakeOut();
+    pros::delay(500);
+    intakeStop();
+
+    chassis.pid_drive_set(35_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    intakeIn();
+
+    chassis.pid_turn_relative_set(27_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(5_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    pros::delay(1000);
+    intakeStop();
+
   }
 #endif
 

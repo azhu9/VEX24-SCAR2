@@ -87,13 +87,13 @@ void initialize() {
   // Autonomous Selector using LLEMU
   #if BIG_BOT
   ez::as::auton_selector.autons_add({
-    Auton("Big Bot Skills", big_bot_skills),
     Auton("Big Bot Match Autonomous", big_bot_match_auton),
+    Auton("Big Bot Skills", big_bot_skills),
   });
   #else
   ez::as::auton_selector.autons_add({
-    Auton("Small Bot Skills", small_bot_skills),
     Auton("Small Bot Match Autonomous", small_bot_match_auton),
+    Auton("Small Bot Skills", small_bot_skills),
   });
   #endif
 
@@ -112,8 +112,13 @@ void initialize() {
  */
 void disabled() {
   // . . .
-  ez::Piston climbPistonDown('A');
-  climbPistonDown.set(true);
+  #if BIG_BOT
+    ez::Piston leftWing('H', false);
+    ez::Piston rightWing('A', false);
+  #else
+    ez::Piston rightWing('C', false);
+  ez::Piston leftWing('A', false);
+  #endif
 }
 
 
