@@ -44,6 +44,21 @@ void rightWingIn(){
 }
 
 #if BIG_BOT
+
+//intake helpers with time and auto stop
+  void intakeIn(int ms){
+    intake = 127;
+    pros::delay(ms);
+    intake = 0;
+  }
+
+  void intakeOut(int ms){
+    intake = -127;
+    pros::delay(ms);
+    intake = 0;
+  }
+
+  //intake helpers without time (have to set delay in the auton in order to set time and use intakeStop())
 void intakeIn(){
   intake = 127;
 }
@@ -53,7 +68,8 @@ void intakeOut(){
 }
 
 void intakeStop(){
-  intake.brake();
+  // intake.brake();
+  intake = 0;
 }
 
 void slapperRev(int rep){
@@ -75,16 +91,30 @@ void slapperRev(int rep){
     }
 }
 #else
+  //intake helpers with time and auto stop
+  void intakeIn(int ms){
+    intake = -127;
+    pros::delay(ms);
+    intake = 0;
+  }
+
+  void intakeOut(int ms){
+    intake = 127;
+    pros::delay(ms);
+    intake = 0;
+  }
+  
+  //intake helpers without time (have to set delay in the auton in order to set time and use intakeStop())
   void intakeIn(){
-  intake = -127;
+    intake = -127;
   }
 
   void intakeOut(){
-  intake = 127;
+    intake = 127;
   }
 
   void intakeStop(){
-  intake = 0;
+    intake = 0;
   }
 
   void slapperRev(int rep){
@@ -269,12 +299,12 @@ void default_constants() {
 #else
   void small_bot_skills(){
 
-    intakeIn();
-    pros::delay(500);
-    intakeStop();
-    intakeOut();
-    pros::delay(500);
-    intakeStop();
+    intakeIn(500);
+    // pros::delay(500);
+    // intakeStop();
+    intakeOut(500);
+    // pros::delay(500);
+    // intakeStop();
 
     rightWingOut();
     pros::delay(500);
@@ -341,12 +371,12 @@ void default_constants() {
   }
 
   void small_bot_match_auton(){
-    intakeIn();
-    pros::delay(500);
-    intakeStop();
-    intakeOut();
-    pros::delay(500);
-    intakeStop();
+    intakeIn(500);
+    // pros::delay(500);
+    // intakeStop();
+    intakeOut(500);
+    // pros::delay(500);
+    // intakeStop();
 
     chassis.pid_drive_set(35_in, DRIVE_SPEED, true);
     chassis.pid_wait();
