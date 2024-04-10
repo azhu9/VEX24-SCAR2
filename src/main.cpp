@@ -37,15 +37,15 @@ ez::Drive chassis (
 ez::Drive chassis (
   // Left Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  {16, -17, 18, -19}
+  {-10, 9, -8, 7}
   
 
   // Right Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  ,{-11, 12, -13, 14}
+  ,{-4, 3, -2, 1}
 
   // IMU Port
-  ,9
+  ,5
 
   // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
   ,3.25
@@ -192,19 +192,23 @@ void opcontrol() {
   slapper.set_gearing(pros::E_MOTOR_GEAR_200);
 	slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 #else
-  pros::Motor slapper(1);
+  // pros::Motor slapper(1);
 
   pros::Motor intake_motor(15);
   intake_motor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
-  ez::Piston rightWing('C', false);
-  ez::Piston leftWing('A', false);
+  pros::Motor climb_motor(20);
+  climb_motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+
+
+  ez::Piston rightWing('A', false);
+  ez::Piston leftWing('B', false);
 
   bool leftWingDeployed = false;
   bool rightWingDeployed = false;
 
-  slapper.set_gearing(pros::E_MOTOR_GEAR_200);
-	slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+  // slapper.set_gearing(pros::E_MOTOR_GEAR_200);
+	// slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
 #endif
 
@@ -297,23 +301,33 @@ void opcontrol() {
         rightWing.set(rightWingDeployed);
 		}
 
-      if(master.get_digital(DIGITAL_X)){
-      int pos = 0;
-      int angle = -825;  //this is 360 degrees
-      slapper.tare_position();
-
-      while(pos > angle){
-        slapper = -127;
-        pos = slapper.get_position();
-      }
+    if(master.get_digital(DIGITAL_UP)){
+      climb_motor = -127;
     }
-      else{
-        slapper.brake();
-      }
+    else if(master.get_digital(DIGITAL_DOWN)){
+      climb_motor = 127;
+    }
+    else{
+      climb_motor.brake();
+    }
 
-      if(master.get_digital(DIGITAL_B)){
-        slapper = 50;
-      }
+    //   if(master.get_digital(DIGITAL_X)){
+    //   int pos = 0;
+    //   int angle = -825;  //this is 360 degrees
+    //   slapper.tare_position();
+
+    //   while(pos > angle){
+    //     slapper = -127;
+    //     pos = slapper.get_position();
+    //   }
+    // }
+    //   else{
+    //     slapper.brake();
+    //   }
+
+    //   if(master.get_digital(DIGITAL_B)){
+    //     slapper = 50;
+    //   }
 
     #endif
 
