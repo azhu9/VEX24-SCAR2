@@ -11,7 +11,7 @@ extern Drive chassis;
     void big_bot_match_auton();
 #else
     void small_bot_skills();
-    void small_bot_match_auton();
+    void red_bot_match();
 #endif
 // void small_AWP();
 // void turn_example();

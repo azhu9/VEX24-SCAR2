@@ -20,10 +20,14 @@ const int SWING_SPEED = 90;
   ez::Piston rightWing('A', false);
 
 #else
-  pros::Motor intake(15);
-  pros::Motor slapper(1);
-  ez::Piston leftWing('C', false);
+  pros::Motor intake(11);
+
+  pros::Motor climb_motor1(-6);
+  pros::Motor climb_motor2(20);
+  pros::Motor_Group climb({climb_motor1, climb_motor2});
+
   ez::Piston rightWing('A', false);
+  ez::Piston leftWing('B', false);
 #endif
 //Helper Methods
 
@@ -117,24 +121,24 @@ void slapperRev(int rep){
     intake = 0;
   }
 
-  void slapperRev(int rep){
-    for(int i = 0; i < rep; i++){
-        int pos = 0;
-        int angle = -660;  //this is 360 degrees
-        slapper.tare_position();
+//   void slapperRev(int rep){
+//     for(int i = 0; i < rep; i++){
+//         int pos = 0;
+//         int angle = -660;  //this is 360 degrees
+//         slapper.tare_position();
 
-        while(pos > angle){
-          slapper = -127;
-          pos = slapper.get_position();
-          pros::delay(10);
-        }
-        slapper.brake();
+//         while(pos > angle){
+//           slapper = -127;
+//           pos = slapper.get_position();
+//           pros::delay(10);
+//         }
+//         slapper.brake();
 
-        if(i != 9){
-          pros::delay(1750);
-        }
-    }
-}
+//         if(i != 9){
+//           pros::delay(1750);
+//         }
+//     }
+// }
 #endif
 
 void default_constants() {
@@ -297,6 +301,99 @@ void default_constants() {
 
   }
 #else
+
+  void red_bot_match(){
+    rightWingOut();
+    pros::delay(100);
+    
+    chassis.pid_drive_set(-8_in, 30, true);
+    chassis.pid_wait();
+
+    rightWingIn();
+    pros::delay(100);
+    leftWingOut();
+
+    chassis.pid_swing_relative_set(ez::RIGHT_SWING, 45_deg, SWING_SPEED, 30);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-12_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(8_in, DRIVE_SPEED, true);
+    chassis.pid_wait();    
+
+    leftWingIn();
+    pros::delay(100);
+
+    chassis.pid_turn_relative_set(-90_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-8_in, 127, true);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(41_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(-90_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    intakeIn();
+    chassis.pid_drive_set(18_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(180_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    intakeStop();
+    chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    intakeOut(1000);
+    chassis.pid_drive_set(-5_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(175_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(28_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    intakeIn();
+    pros::delay(500);
+
+    chassis.pid_turn_relative_set(180_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    intakeStop();
+    chassis.pid_drive_set(33_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    intakeOut(1000);
+
+    chassis.pid_drive_set(-7_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(225_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(26_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    intakeIn();
+
+    chassis.pid_drive_set(-26_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(125_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    intakeOut(1000);
+  
+  }
+
+
+
+
   void small_bot_skills(){
 
     intakeIn(500);
@@ -309,7 +406,7 @@ void default_constants() {
     rightWingOut();
     pros::delay(500);
 
-    slapperRev(20);
+    // slapperRev(20);
     
     rightWingIn();
     pros::delay(500);

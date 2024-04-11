@@ -45,7 +45,7 @@ ez::Drive chassis (
   ,{-4, 3, -2, 1}
 
   // IMU Port
-  ,5
+  ,13
 
   // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
   ,3.25
@@ -92,8 +92,10 @@ void initialize() {
   });
   #else
   ez::as::auton_selector.autons_add({
-    Auton("Small Bot Match Autonomous", small_bot_match_auton),
-    Auton("Small Bot Skills", small_bot_skills),
+  Auton("Small Bot Match Autonomous", red_bot_match),
+  Auton("Small Bot Skills", small_bot_skills),
+
+    
   });
   #endif
 
@@ -193,23 +195,23 @@ void opcontrol() {
 	slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 #else
   // pros::Motor slapper(1);
+  // slapper.set_gearing(pros::E_MOTOR_GEAR_200);
+	// slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
-  pros::Motor intake_motor(15);
+  pros::Motor intake_motor(11);
   intake_motor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
-  pros::Motor climb_motor(20);
-  climb_motor.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-
+  pros::Motor climb_motor1(-6);
+  pros::Motor climb_motor2(20);
+  pros::Motor_Group climb({climb_motor1, climb_motor2});
+  climb_motor1.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+  climb_motor2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
   ez::Piston rightWing('A', false);
   ez::Piston leftWing('B', false);
 
   bool leftWingDeployed = false;
   bool rightWingDeployed = false;
-
-  // slapper.set_gearing(pros::E_MOTOR_GEAR_200);
-	// slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
-
 #endif
 
   
@@ -302,13 +304,13 @@ void opcontrol() {
 		}
 
     if(master.get_digital(DIGITAL_UP)){
-      climb_motor = -127;
+      climb = -127;
     }
     else if(master.get_digital(DIGITAL_DOWN)){
-      climb_motor = 127;
+      climb = 127;
     }
     else{
-      climb_motor.brake();
+      climb.brake();
     }
 
     //   if(master.get_digital(DIGITAL_X)){
