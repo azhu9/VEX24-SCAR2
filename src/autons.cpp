@@ -1,5 +1,6 @@
 #include "EZ-Template/util.hpp"
 #include "main.h"
+#include "okapi/api/units/QAngle.hpp"
 #include "pros/rtos.hpp"
 
 //see helpermethods.cpp for constants and helper methods
@@ -7,7 +8,7 @@
 ///
 // Constants
 ///
-const int DRIVE_SPEED = 70;  
+const int DRIVE_SPEED = 90;  
 const int TURN_SPEED = 90;
 const int SWING_SPEED = 90;
 
@@ -78,20 +79,10 @@ void intakeStop(){
 
 void slapperRev(int rep){
     for(int i = 0; i < rep; i++){
-        int pos = 0;
-        int angle = 600;  //this is 360 degrees
-        slapper.tare_position();
-
-        while(pos < angle){
-          slapper = 127;
-          pos = slapper.get_position();
-          pros::delay(10);
-        }
-        slapper.brake();
-
-        if(i != 9){
-          pros::delay(1750);
-        }
+        rightWingOut();
+        pros::delay(200);
+        rightWingIn();
+        pros::delay(1250);
     }
 }
 #else
@@ -143,13 +134,15 @@ void slapperRev(int rep){
 
 void default_constants() {
   chassis.pid_heading_constants_set(3, 0, 20);
-  chassis.pid_drive_constants_set(10, 0, 100);
+  chassis.pid_drive_constants_set(10, 0, 100); //10 0 100
   chassis.pid_turn_constants_set(3, 0, 20);
   chassis.pid_swing_constants_set(5, 0, 30);
 
-  chassis.pid_turn_exit_condition_set(300_ms, 3_deg, 500_ms, 7_deg, 750_ms, 750_ms);
-  chassis.pid_swing_exit_condition_set(300_ms, 3_deg, 500_ms, 7_deg, 750_ms, 750_ms);
-  chassis.pid_drive_exit_condition_set(300_ms, 1_in, 500_ms, 3_in, 750_ms, 750_ms);
+  chassis.pid_turn_exit_condition_set(100_ms, 3_deg, 300_ms, 7_deg, 750_ms, 750_ms);
+  chassis.pid_swing_exit_condition_set(100_ms, 3_deg, 300_ms, 7_deg, 750_ms, 750_ms);
+  chassis.pid_drive_exit_condition_set(100_ms, 1_in, 300_ms, 3_in, 750_ms, 750_ms);
+
+  //300 500
 
   chassis.slew_drive_constants_set(7_in, 80);
 }
@@ -167,20 +160,6 @@ void default_constants() {
     // //matchload 20
     leftWingOut();
     pros::delay(500);
-
-    // slapperRev(10);
-
-    // chassis.pid_drive_set(-7_in, DRIVE_SPEED, true);
-    // chassis.pid_wait();
-
-    // chassis.pid_turn_relative_set(-45_deg, TURN_SPEED);
-    // chassis.pid_wait();
-
-    // chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
-    // chassis.pid_wait();
-    
-    // chassis.pid_drive_set(7_in, DRIVE_SPEED, true);
-    // chassis.pid_wait();
 
     slapperRev(25);
     
@@ -242,9 +221,46 @@ void default_constants() {
   //10 matchloads, start at the matchload bar with tool
   void big_bot_match_auton(){
     leftWingOut();
-    pros::delay(500);
+    pros::delay(200);
 
-    slapperRev(12);
+    chassis.pid_drive_set(10_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(-180_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_swing_relative_set(ez::RIGHT_SWING, 45_deg, SWING_SPEED, 35);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-10_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(10_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_swing_relative_set(ez::RIGHT_SWING, 45_deg, SWING_SPEED, 35);
+    chassis.pid_wait();
+
+    slapperRev(10);
+
+    chassis.pid_swing_relative_set(ez::RIGHT_SWING, 45_deg, SWING_SPEED, 35);
+    chassis.pid_wait();
+    intakeOut();
+
+    chassis.pid_drive_set(55_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_swing_relative_set(ez::RIGHT_SWING, -90_deg, SWING_SPEED, 60);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(18_in, 127, true);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-20_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+
+    slapperRev(10);
     
     leftWingIn();
     pros::delay(500);
@@ -302,11 +318,158 @@ void default_constants() {
   }
 #else
 
-  void red_bot_match(){
+  void red_bot_match_far(){
+    // intakeIn();
+    chassis.pid_drive_set(54_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+    intakeStop();
+
+    chassis.pid_turn_relative_set(-45_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    intakeOut(500);
+
+    chassis.pid_turn_relative_set(-105_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(45_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    intakeIn();
+
+    chassis.pid_drive_set(-15_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(-40, TURN_SPEED);
+    chassis.pid_wait();
+
+    intakeOut(500);
+
+    chassis.pid_turn_set(-90, TURN_SPEED);
+    chassis.pid_wait();
+
+    intakeIn();
+    chassis.pid_drive_set(26_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(90, TURN_SPEED);
+    chassis.pid_wait();
+
+    intakeOut(500);
+
+    chassis.pid_turn_relative_set(-90, TURN_SPEED);
+    chassis.pid_wait();
+
+    intakeIn();
+    chassis.pid_drive_set(14_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-6_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(90, TURN_SPEED);
+    chassis.pid_wait();
+    intakeOut(500);
+
+    chassis.pid_turn_set(180, TURN_SPEED);
+    chassis.pid_wait();
+
+    intakeIn();
+    chassis.pid_drive_set(15_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    leftWingOut();
+    rightWingOut();
+
+    chassis.pid_drive_set(-38_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    // chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
+
+    // chassis.pid_turn_relative_set(45, TURN_SPEED);
+    // chassis.pid_wait();
+
+    // chassis.pid_swing_relative_set(ez::RIGHT_SWING, -45_deg, SWING_SPEED, 65);
+    // chassis.pid_wait();
+
+    chassis.pid_drive_set(10_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+    leftWingIn();
+    rightWingIn();
+
+    chassis.pid_turn_set(0, TURN_SPEED);
+    chassis.pid_wait();
+    intakeStop();
+
+    chassis.pid_drive_set(12_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    intakeOut(500);
+
+    chassis.pid_drive_set(-45_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(35_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_set(85, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(60_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_turn_relative_set(90, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-7_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 40);
+    chassis.pid_wait();
+
+    leftWingOut();
+    chassis.pid_drive_set(-10_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+    leftWingIn();
+    rightWingOut();
+
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 30);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-18_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+    rightWingIn();
+
+    chassis.pid_drive_set(12_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    // chassis.pid_turn_relative_set(45, TURN_SPEED);
+    // chassis.pid_wait();
+
+    // chassis.pid_drive_set(40_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
+  }
+  
+  void pid_test(){
+    chassis.pid_drive_set(24_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-24_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+  }
+
+  void red_bot_match_close(){
+    //Intake preload
+    intakeIn();
+
     rightWingOut();
     pros::delay(100);
     
-    chassis.pid_drive_set(-8_in, 30, true);
+    chassis.pid_drive_set(-8_in, 10, true);
     chassis.pid_wait();
 
     rightWingIn();
@@ -318,6 +481,8 @@ void default_constants() {
 
     chassis.pid_drive_set(-12_in, DRIVE_SPEED, true);
     chassis.pid_wait();
+    //score alliance triball
+
 
     chassis.pid_drive_set(8_in, DRIVE_SPEED, true);
     chassis.pid_wait();    
@@ -334,9 +499,17 @@ void default_constants() {
     chassis.pid_drive_set(41_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
-    chassis.pid_turn_relative_set(-90_deg, TURN_SPEED);
+    chassis.pid_turn_relative_set(90_deg, TURN_SPEED);
     chassis.pid_wait();
 
+    intakeOut(500);
+    //dump preload
+
+    chassis.pid_turn_relative_set(-180_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+
+    //grab triball 1
     intakeIn();
     chassis.pid_drive_set(18_in, DRIVE_SPEED, true);
     chassis.pid_wait();
@@ -348,47 +521,64 @@ void default_constants() {
     chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
-    intakeOut(1000);
-    chassis.pid_drive_set(-5_in, DRIVE_SPEED, true);
+    //dump triball 1
+    intakeOut(500);
+
+    //drive and grab triball 2
+    chassis.pid_drive_set(-9_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
     chassis.pid_turn_relative_set(175_deg, TURN_SPEED);
     chassis.pid_wait();
 
-    chassis.pid_drive_set(28_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
-
     intakeIn();
-    pros::delay(500);
+    chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+    // pros::delay(500);
+
+    chassis.pid_drive_set(-30_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+    intakeStop();
 
     chassis.pid_turn_relative_set(180_deg, TURN_SPEED);
-    chassis.pid_wait();
+    chassis.pid_wait();  
 
-    intakeStop();
-    chassis.pid_drive_set(33_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
+    //dump triball 2
+    intakeOut(500);
 
-    intakeOut(1000);
-
+    //drive and grab triball 3
     chassis.pid_drive_set(-7_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
-    chassis.pid_turn_relative_set(225_deg, TURN_SPEED);
-    chassis.pid_wait();
-
-    chassis.pid_drive_set(26_in, DRIVE_SPEED, true);
+    chassis.pid_turn_relative_set(-135_deg, TURN_SPEED);
     chassis.pid_wait();
 
     intakeIn();
+    chassis.pid_drive_set(23_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
 
-    chassis.pid_drive_set(-26_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(-23_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
     chassis.pid_turn_relative_set(125_deg, TURN_SPEED);
     chassis.pid_wait();
 
-    intakeOut(1000);
-  
+    //dump triball 3
+    intakeOut(500);
+
+    //drive and grab triball 4
+    chassis.pid_turn_relative_set(-90_deg, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_swing_relative_set(ez::RIGHT_SWING, -90_deg, SWING_SPEED, 30);
+    chassis.pid_wait();
+
+    intakeIn();
+    chassis.pid_drive_set(8_in, 50, true);
+    chassis.pid_wait();
+
+    chassis.pid_swing_relative_set(ez::RIGHT_SWING, 90_deg, SWING_SPEED, 20);
+    chassis.pid_wait();
   }
 
 

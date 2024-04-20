@@ -4,14 +4,16 @@
 
 extern Drive chassis;
 
-#define BIG_BOT false
+#define BIG_BOT true
 
 #if BIG_BOT
     void big_bot_skills();
     void big_bot_match_auton();
 #else
+    void red_bot_match_far();
+    void pid_test();
     void small_bot_skills();
-    void red_bot_match();
+    void red_bot_match_close();
 #endif
 // void small_AWP();
 // void turn_example();

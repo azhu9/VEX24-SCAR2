@@ -1,6 +1,7 @@
 #include "main.h"
 #include "autons.hpp"
 #include "pros/motors.h"
+#include "pros/motors.hpp"
 /////
 // For installation, upgrading, documentations and tutorials, check out our website!
 // https://ez-robotics.github.io/EZ-Template/
@@ -12,11 +13,11 @@
 ez::Drive chassis (
   // Left Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  {-17, 18, -19, 20}
+  {1, -2, 3, -4}
 
   // Right Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  ,{12, -13, 14, -15}
+  ,{-6, 7,-8, 9}
 
   // IMU Port
   ,9
@@ -92,7 +93,9 @@ void initialize() {
   });
   #else
   ez::as::auton_selector.autons_add({
-  Auton("Small Bot Match Autonomous", red_bot_match),
+    Auton("Red bot Match FAR", red_bot_match_far),
+    Auton("test", pid_test),
+  Auton("Small Bot Match Autonomous", red_bot_match_close),
   Auton("Small Bot Skills", small_bot_skills),
 
     
@@ -182,24 +185,27 @@ void opcontrol() {
   
 #if BIG_BOT
   pros::Motor intake_motor(10);
-  pros::Motor slapper(1);
+  pros::Motor winch_motor(16);
+  pros::Motor climb_motor1(-20);
+  pros::Motor climb_motor2(11);
+  pros::MotorGroup climb({climb_motor1, climb_motor2});
+  climb.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 
   ez::Piston leftWing('H', false);
   ez::Piston rightWing('A', false);
-
+  ez::Piston claw('B');
 
   bool leftWingDeployed = false;
   bool rightWingDeployed = false;
+  bool clawDeployed = false;
 
-  slapper.set_gearing(pros::E_MOTOR_GEAR_200);
-	slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 #else
   // pros::Motor slapper(1);
   // slapper.set_gearing(pros::E_MOTOR_GEAR_200);
 	// slapper.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 
   pros::Motor intake_motor(11);
-  intake_motor.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+  intake_motor.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
   pros::Motor climb_motor1(-6);
   pros::Motor climb_motor2(20);
@@ -243,10 +249,10 @@ void opcontrol() {
     #if BIG_BOT //big bot controls
 
     if(master.get_digital(DIGITAL_R1)){
-      intake_motor = 127;
+      intake_motor = -127;
     }
     else if(master.get_digital(DIGITAL_R2)){
-      intake_motor = -127;
+      intake_motor = 127;
     }
     else{
       intake_motor = 0;
@@ -262,24 +268,32 @@ void opcontrol() {
 			rightWing.set(rightWingDeployed);
 		}
 
-      if(master.get_digital(DIGITAL_X)){
-      int pos = 0;
-      int angle = 825;  //this is 360 degrees
-      slapper.tare_position();
-
-      while(pos < angle){
-        slapper = 127;
-        pos = slapper.get_position(); 
-      }
+    //CLIMB CONTROLS
+    if(master.get_digital(DIGITAL_UP)){
+      climb = 127;
     }
-      else{
-        slapper.brake();
-      }
+    else if(master.get_digital(DIGITAL_DOWN)){
+      climb = -127;
+    }
+    else{
+      climb.brake();
+    }
 
-      if(master.get_digital(DIGITAL_B)){
-        slapper = -50;
-      }
+    if(master.get_digital(DIGITAL_RIGHT)){
+      winch_motor = 127;
+    }
+    else if(master.get_digital(DIGITAL_LEFT)){
+      winch_motor = -127;
+    }
+    else{
+      winch_motor.brake();
+    }
 
+    if(master.get_digital_new_press(DIGITAL_X)) {
+			clawDeployed = !clawDeployed;
+			claw.set(clawDeployed);
+		}
+    
 
     #else
 
@@ -312,24 +326,6 @@ void opcontrol() {
     else{
       climb.brake();
     }
-
-    //   if(master.get_digital(DIGITAL_X)){
-    //   int pos = 0;
-    //   int angle = -825;  //this is 360 degrees
-    //   slapper.tare_position();
-
-    //   while(pos > angle){
-    //     slapper = -127;
-    //     pos = slapper.get_position();
-    //   }
-    // }
-    //   else{
-    //     slapper.brake();
-    //   }
-
-    //   if(master.get_digital(DIGITAL_B)){
-    //     slapper = 50;
-    //   }
 
     #endif
 
