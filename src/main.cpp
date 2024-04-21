@@ -13,14 +13,14 @@
 ez::Drive chassis (
   // Left Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  {1, -2, 3, -4}
+  {-1, 2, -3, 4}
 
   // Right Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  ,{-6, 7,-8, 9}
+  ,{6, -7,8, -9}
 
   // IMU Port
-  ,9
+  ,19
 
   // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
   ,3.25
@@ -118,8 +118,8 @@ void initialize() {
 void disabled() {
   // . . .
   #if BIG_BOT
-    ez::Piston leftWing('H', false);
-    ez::Piston rightWing('A', false);
+    ez::Piston leftWing('A', false);
+    ez::Piston rightWing('B', false);
   #else
     ez::Piston rightWing('C', false);
   ez::Piston leftWing('A', false);
@@ -185,15 +185,15 @@ void opcontrol() {
   
 #if BIG_BOT
   pros::Motor intake_motor(10);
-  pros::Motor winch_motor(16);
-  pros::Motor climb_motor1(-20);
+  pros::Motor winch_motor(20);
+  pros::Motor climb_motor1(-18);
   pros::Motor climb_motor2(11);
   pros::MotorGroup climb({climb_motor1, climb_motor2});
   climb.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 
-  ez::Piston leftWing('H', false);
-  ez::Piston rightWing('A', false);
-  ez::Piston claw('B');
+  ez::Piston leftWing('A', false);
+  ez::Piston rightWing('B', false);
+  ez::Piston claw('H', false);
 
   bool leftWingDeployed = false;
   bool rightWingDeployed = false;
@@ -279,10 +279,10 @@ void opcontrol() {
       climb.brake();
     }
 
-    if(master.get_digital(DIGITAL_RIGHT)){
+    if(master.get_digital(DIGITAL_A)){
       winch_motor = 127;
     }
-    else if(master.get_digital(DIGITAL_LEFT)){
+    else if(master.get_digital(DIGITAL_Y)){
       winch_motor = -127;
     }
     else{
@@ -290,8 +290,7 @@ void opcontrol() {
     }
 
     if(master.get_digital_new_press(DIGITAL_X)) {
-			clawDeployed = !clawDeployed;
-			claw.set(clawDeployed);
+			clawDeployed = true;
 		}
     
 
@@ -317,10 +316,10 @@ void opcontrol() {
         rightWing.set(rightWingDeployed);
 		}
 
-    if(master.get_digital(DIGITAL_UP)){
+    if(master.get_digital(DIGITAL_X)){
       climb = -127;
     }
-    else if(master.get_digital(DIGITAL_DOWN)){
+    else if(master.get_digital(DIGITAL_B)){
       climb = 127;
     }
     else{

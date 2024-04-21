@@ -16,9 +16,15 @@ const int SWING_SPEED = 90;
 #if BIG_BOT
 //Motor declaration
   pros::Motor intake(10);
-  pros::Motor slapper(1);
-  ez::Piston leftWing('H', false);
-  ez::Piston rightWing('A', false);
+  // pros::Motor winch_motor(20);
+  // pros::Motor climb_motor1(-18);
+  // pros::Motor climb_motor2(11);
+  // pros::MotorGroup climb({climb_motor1, climb_motor2});
+  // climb.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
+
+  ez::Piston leftWing('A', false);
+  ez::Piston rightWing('B', false);
+  ez::Piston claw('H', false);
 
 #else
   pros::Motor intake(11);
@@ -80,7 +86,7 @@ void intakeStop(){
 void slapperRev(int rep){
     for(int i = 0; i < rep; i++){
         rightWingOut();
-        pros::delay(200);
+        pros::delay(1000);
         rightWingIn();
         pros::delay(1250);
     }
@@ -220,100 +226,104 @@ void default_constants() {
   //BIG BOT MATCH AUTON
   //10 matchloads, start at the matchload bar with tool
   void big_bot_match_auton(){
+    // leftWingOut();
+    // pros::delay(200);
+
+    // chassis.pid_drive_set(10_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
+
+    // chassis.pid_turn_relative_set(-180_deg, TURN_SPEED);
+    // chassis.pid_wait();
+
+    // chassis.pid_swing_relative_set(ez::RIGHT_SWING, 45_deg, SWING_SPEED, 35);
+    // chassis.pid_wait();
+
+    // chassis.pid_drive_set(-10_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
+
+    // chassis.pid_drive_set(10_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
+
+    // chassis.pid_swing_relative_set(ez::RIGHT_SWING, 45_deg, SWING_SPEED, 35);
+    // chassis.pid_wait();
+
+    slapperRev(10);
+
+    chassis.pid_swing_relative_set(ez::RIGHT_SWING, -20_deg, SWING_SPEED, 35);
+    chassis.pid_wait();
+    intakeOut(10000);
     leftWingOut();
-    pros::delay(200);
 
-    chassis.pid_drive_set(10_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
-
-    chassis.pid_turn_relative_set(-180_deg, TURN_SPEED);
-    chassis.pid_wait();
-
-    chassis.pid_swing_relative_set(ez::RIGHT_SWING, 45_deg, SWING_SPEED, 35);
+    chassis.pid_drive_set(30_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
     chassis.pid_drive_set(-10_in, DRIVE_SPEED, true);
     chassis.pid_wait();
 
-    chassis.pid_drive_set(10_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
+    // chassis.pid_swing_relative_set(ez::RIGHT_SWING, -90_deg, SWING_SPEED, 60);
+    // chassis.pid_wait();
 
-    chassis.pid_swing_relative_set(ez::RIGHT_SWING, 45_deg, SWING_SPEED, 35);
-    chassis.pid_wait();
+    // chassis.pid_drive_set(18_in, 127, true);
+    // chassis.pid_wait();
 
-    slapperRev(10);
-
-    chassis.pid_swing_relative_set(ez::RIGHT_SWING, 45_deg, SWING_SPEED, 35);
-    chassis.pid_wait();
-    intakeOut();
-
-    chassis.pid_drive_set(55_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
-
-    chassis.pid_swing_relative_set(ez::RIGHT_SWING, -90_deg, SWING_SPEED, 60);
-    chassis.pid_wait();
-
-    chassis.pid_drive_set(18_in, 127, true);
-    chassis.pid_wait();
-
-    chassis.pid_drive_set(-20_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
+    // chassis.pid_drive_set(-20_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
 
 
-    slapperRev(10);
+    // slapperRev(10);
     
-    leftWingIn();
-    pros::delay(500);
-    rightWingOut();
+    // leftWingIn();
+    // pros::delay(500);
+    // rightWingOut();
 
-    //align to 45 degrees
-    chassis.pid_turn_relative_set(11_deg, TURN_SPEED);
-    chassis.pid_wait();
+    // //align to 45 degrees
+    // chassis.pid_turn_relative_set(11_deg, TURN_SPEED);
+    // chassis.pid_wait();
 
-    chassis.pid_drive_set(-15_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
+    // chassis.pid_drive_set(-15_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
 
-    //curve bot to hug the wall
-    chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, 60, 35);
-    // chassis.pid_turn_set(-45_deg, TURN_SPEED);
-    chassis.pid_wait();
+    // //curve bot to hug the wall
+    // chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, 60, 35);
+    // // chassis.pid_turn_set(-45_deg, TURN_SPEED);
+    // chassis.pid_wait();
 
-    //drive through alley
-    chassis.pid_drive_set(-55_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
+    // //drive through alley
+    // chassis.pid_drive_set(-55_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
 
-    //curve into the goal
-    chassis.pid_swing_relative_set(ez::LEFT_SWING, -90_deg, SWING_SPEED, 60);
-    chassis.pid_wait();
+    // //curve into the goal
+    // chassis.pid_swing_relative_set(ez::LEFT_SWING, -90_deg, SWING_SPEED, 60);
+    // chassis.pid_wait();
 
-    chassis.pid_drive_set(-18_in, 127, true);
-    chassis.pid_wait();
+    // chassis.pid_drive_set(-18_in, 127, true);
+    // chassis.pid_wait();
     
-    //back up
-    chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
+    // //back up
+    // chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
 
-    rightWingIn();
-    pros::delay(500);
+    // rightWingIn();
+    // pros::delay(500);
 
-    //push into goal again
-    chassis.pid_drive_set(-22_in, 127, true);
-    chassis.pid_wait();
+    // //push into goal again
+    // chassis.pid_drive_set(-22_in, 127, true);
+    // chassis.pid_wait();
 
-    chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
+    // chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
 
-    chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
-    chassis.pid_wait();
+    // chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
+    // chassis.pid_wait();
 
-    chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 60);
-    chassis.pid_wait();
+    // chassis.pid_swing_relative_set(ez::LEFT_SWING, -45_deg, SWING_SPEED, 60);
+    // chassis.pid_wait();
 
-    chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
-    chassis.pid_wait();
+    // chassis.pid_turn_relative_set(45_deg, TURN_SPEED);
+    // chassis.pid_wait();
 
-    chassis.pid_drive_set(30_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
+    // chassis.pid_drive_set(30_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
 
   }
 #else
