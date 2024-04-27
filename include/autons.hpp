@@ -1,20 +1,23 @@
 #pragma once
 
 #include "EZ-Template/drive/drive.hpp"
+#include <type_traits>
 
 extern Drive chassis;
 
-#define BIG_BOT true
+#define BIG_BOT false
 
 #if BIG_BOT
-    void big_bot_skills();
-    void big_bot_match_auton();
+    void big_bot_match_close();
 #else
-    void red_bot_match_far();
-    void pid_test();
-    void small_bot_skills();
-    void red_bot_match_close();
+    void red_bot_match_far_6ball();
+    void red_bot_match_far_5ball();
+    void red_bot_match_old();
+    
 #endif
+// void big_bot_skills();
+// void small_bot_skills();
+// void red_bot_match_close();
 // void small_AWP();
 // void turn_example();
 // void drive_and_turn();

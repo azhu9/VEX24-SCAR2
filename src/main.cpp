@@ -13,14 +13,14 @@
 ez::Drive chassis (
   // Left Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  {-1, 2, -3, 4}
+  {-11, 12, -13, 14}
 
   // Right Chassis Ports (negative port will reverse it!)
   //   the first port is used as the sensor
-  ,{6, -7,8, -9}
+  ,{20, -19,18, -17}
 
   // IMU Port
-  ,19
+  ,9
 
   // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
   ,3.25
@@ -78,7 +78,12 @@ void initialize() {
   // Configure your chassis controls
   chassis.opcontrol_curve_buttons_toggle(true); // Enables modifying the controller curve with buttons on the joysticks
   chassis.opcontrol_drive_activebrake_set(0); // Sets the active brake kP. We recommend 0.1.
-  chassis.opcontrol_curve_default_set(3.9, 4.3); // Defaults for curve. If using tank, only the first parameter is used. (Comment this line out if you have an SD card!)  
+  #if BIG_BOT
+    chassis.opcontrol_curve_default_set(1.0, 4.3); 
+  #else
+    chassis.opcontrol_curve_default_set(3.9, 4.3); 
+  #endif
+  // Defaults for curve. If using tank, only the first parameter is used. (Comment this line out if you have an SD card!)  
   default_constants(); // Set the drive to your own constants from autons.cpp!
 
   // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
@@ -88,16 +93,12 @@ void initialize() {
   // Autonomous Selector using LLEMU
   #if BIG_BOT
   ez::as::auton_selector.autons_add({
-    Auton("Big Bot Match Autonomous", big_bot_match_auton),
-    Auton("Big Bot Skills", big_bot_skills),
+    Auton("Big Bot Match Autonomous", big_bot_match_close),
   });
   #else
   ez::as::auton_selector.autons_add({
-    Auton("Red bot Match FAR", red_bot_match_far),
-    Auton("test", pid_test),
-  Auton("Small Bot Match Autonomous", red_bot_match_close),
-  Auton("Small Bot Skills", small_bot_skills),
-
+      Auton("Red bot Match FAR", red_bot_match_far_5ball),
+  Auton("Red bot Match FAR", red_bot_match_far_6ball),
     
   });
   #endif
@@ -184,16 +185,19 @@ void opcontrol() {
   
   
 #if BIG_BOT
-  pros::Motor intake_motor(10);
-  pros::Motor winch_motor(20);
-  pros::Motor climb_motor1(-18);
-  pros::Motor climb_motor2(11);
+  pros::Motor intake_motor(7);
+  pros::Motor winch_motor1(-1);
+  pros::Motor winch_motor2(10);
+  pros::MotorGroup winch({winch_motor1, winch_motor2});
+
+  pros::Motor climb_motor1(2);
+  pros::Motor climb_motor2(-8);
   pros::MotorGroup climb({climb_motor1, climb_motor2});
   climb.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 
   ez::Piston leftWing('A', false);
-  ez::Piston rightWing('B', false);
-  ez::Piston claw('H', false);
+  ez::Piston rightWing('C', false);
+  ez::Piston claw('D', false);
 
   bool leftWingDeployed = false;
   bool rightWingDeployed = false;
@@ -270,27 +274,28 @@ void opcontrol() {
 
     //CLIMB CONTROLS
     if(master.get_digital(DIGITAL_UP)){
-      climb = 127;
+      climb = -127;
     }
     else if(master.get_digital(DIGITAL_DOWN)){
-      climb = -127;
+      climb = 127;
     }
     else{
       climb.brake();
     }
 
     if(master.get_digital(DIGITAL_A)){
-      winch_motor = 127;
+      winch = 127;
     }
     else if(master.get_digital(DIGITAL_Y)){
-      winch_motor = -127;
+      winch = -127;
     }
     else{
-      winch_motor.brake();
+      winch.brake();
     }
 
-    if(master.get_digital_new_press(DIGITAL_X)) {
-			clawDeployed = true;
+    if(master.get_digital_new_press(DIGITAL_X)){
+      clawDeployed = !clawDeployed;
+			claw.set(clawDeployed);
 		}
     
 
