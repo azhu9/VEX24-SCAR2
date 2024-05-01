@@ -15,7 +15,7 @@ const int SWING_SPEED = 90;
 
 #if BIG_BOT
 //Motor declaration
-  pros::Motor intake(-7);
+  pros::Motor intake(7);
   // pros::Motor winch_motor1(-1);
   // pros::Motor winch_motor2(10);
   // pros::MotorGroup winch({winch_motor1, winch_motor2});
@@ -148,31 +148,65 @@ void default_constants() {
   //BIG BOT MATCH AUTON
   //10 matchloads, start at the matchload bar with tool
   void big_bot_match_close(){
-    chassis.pid_drive_set(20_in, DRIVE_SPEED, true);
+    slapperRev(11);
+
+    chassis.pid_turn_relative_set(12, TURN_SPEED);
     chassis.pid_wait();
 
-    chassis.pid_turn_relative_set(25_deg, TURN_SPEED);
+    // intakeOut();
+    chassis.pid_drive_set(15_in, DRIVE_SPEED, true);
+    chassis.pid_wait();
+    leftWingOut();
+
+    chassis.pid_swing_relative_set(ez::RIGHT_SWING, -45_deg, SWING_SPEED, 35);
     chassis.pid_wait();
 
-    intakeIn();
-    chassis.pid_drive_set(30_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(55_in, 50, true);
+    chassis.pid_wait();
+
+    chassis.pid_swing_relative_set(ez::RIGHT_SWING, -90_deg, SWING_SPEED, 35);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(15_in, 127, true);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(-15_in, 127, true);
+    chassis.pid_wait();
+
+    leftWingIn();
+
+    chassis.pid_turn_relative_set(-135, TURN_SPEED);
+    chassis.pid_wait();
+
+    chassis.pid_drive_set(10_in, 127, true);
+    chassis.pid_wait();
+
+    chassis.pid_swing_relative_set(ez::LEFT_SWING, 48_deg, SWING_SPEED, 25);
     chassis.pid_wait();
     
-    chassis.pid_drive_set(-10_in, DRIVE_SPEED, true);
+    chassis.pid_drive_set(35_in, DRIVE_SPEED, true);
     chassis.pid_wait();
+    
+    rightWingOut();
 
-    chassis.pid_turn_set(180, TURN_SPEED);
+    chassis.pid_drive_set(-14_in, DRIVE_SPEED, true);
     chassis.pid_wait();
+    // chassis.pid_turn_relative_set(90, TURN_SPEED);
+    // chassis.pid_wait();
 
-    chassis.pid_drive_set(10_in, DRIVE_SPEED, true);
-    chassis.pid_wait();
-    intakeOut(200);
+    // chassis.pid_drive_set(35_in, DRIVE_SPEED, true);
+    // chassis.pid_wait();
+    // intakeStop();
+    // leftWingIn();
+    // chassis.pid_drive_set(-65_in, 50, true);
+    // chassis.pid_wait();
 
+    // chassis.pid_turn_relative_set(-90, TURN_SPEED);
+    // chassis.pid_wait();
 
     
 
-
-
+    
 
     // slapperRev(10);
 
@@ -347,7 +381,7 @@ void default_constants() {
 
 
   void red_bot_match_far_5ball(){
-    // intakeIn();
+    intakeOut(500);
     //drive through alley
     chassis.pid_drive_set(54_in, DRIVE_SPEED, true);
     chassis.pid_wait();

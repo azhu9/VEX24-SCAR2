@@ -97,8 +97,9 @@ void initialize() {
   });
   #else
   ez::as::auton_selector.autons_add({
+      Auton("Red bot Match FAR", red_bot_match_far_6ball),
       Auton("Red bot Match FAR", red_bot_match_far_5ball),
-  Auton("Red bot Match FAR", red_bot_match_far_6ball),
+  // Auton("Red bot Match FAR", red_bot_match_far_6ball),
     
   });
   #endif
@@ -195,8 +196,8 @@ void opcontrol() {
   pros::MotorGroup climb({climb_motor1, climb_motor2});
   climb.set_brake_modes(pros::E_MOTOR_BRAKE_HOLD);
 
-  ez::Piston leftWing('A', false);
-  ez::Piston rightWing('C', false);
+  ez::Piston leftWing('C', false);
+  ez::Piston rightWing('A', false);
   ez::Piston claw('D', false);
 
   bool leftWingDeployed = false;
@@ -217,8 +218,8 @@ void opcontrol() {
   climb_motor1.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
   climb_motor2.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
 
-  ez::Piston rightWing('A', false);
-  ez::Piston leftWing('B', false);
+  ez::Piston rightWing('B', false);
+  ez::Piston leftWing('A', false);
 
   bool leftWingDeployed = false;
   bool rightWingDeployed = false;
